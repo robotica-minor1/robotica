@@ -1,18 +1,13 @@
 <?xml version="1.0"?>
 <package>
-  <name>drone</name>
-  <version>0.0.1</version>
-  <description>Code for the tiltrotor drone robot</description>
+  <name>drone_flightcontrol</name>
+  <version>0.0.0</version>
+  <description>Package containing the files needed for the flightcontroller. </description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="rutgervandenberg@Hotmail.com">Rutger van den Berg</maintainer>
-  <maintainer email="overv161@gmail.com">Alexander Overvoorde</maintainer>
-  <maintainer email="henricus@basien.de">Henricus Basien</maintainer>
-  <maintainer email="pluswouter@gmail.com">Wouter Jongeneel</maintainer>
-  <maintainer email="st.maartenk@gmail.com">Maarten Kleijwegt</maintainer>
-  <maintainer email="gerardhogenhout@hotmail.com">Gerard Hovenhout</maintainer>
+  <maintainer email="rutgervandenberg@Hotmai.com">Rutger van den Berg</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -24,7 +19,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/drone</url> -->
+  <!-- <url type="website">http://wiki.ros.org/drone_flightcontrol</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
@@ -45,6 +40,10 @@
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>cmake_modules</run_depend>
+
+  <build_depend>roscpp</build_depend>
+  <run_depend>roscpp</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
