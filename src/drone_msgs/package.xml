@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package>
-  <name>drone_flightcontrol</name>
+  <name>drone_msgs</name>
   <version>0.0.0</version>
-  <description>Package containing the files needed for the flightcontroller. </description>
+  <description>The drone_msgs package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="rutgervandenberg@Hotmai.com">Rutger van den Berg</maintainer>
+  <maintainer email="ellhound@todo.todo">ellhound</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/drone_flightcontrol</url> -->
+  <!-- <url type="website">http://wiki.ros.org/drone_msgs</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
@@ -32,21 +32,15 @@
   <!-- Dependencies can be catkin packages or system dependencies -->
   <!-- Examples: -->
   <!-- Use build_depend for packages you need at compile time: -->
-  <!--   <build_depend>message_generation</build_depend> -->
+  <build_depend>message_generation</build_depend>
   <!-- Use buildtool_depend for build tool packages: -->
   <!--   <buildtool_depend>catkin</buildtool_depend> -->
   <!-- Use run_depend for packages you need at runtime: -->
-  <!--   <run_depend>message_runtime</run_depend> -->
+  <run_depend>message_runtime</run_depend>
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <run_depend>cmake_modules</run_depend>
 
-  <build_depend>roscpp</build_depend>
-  <run_depend>roscpp</run_depend>
-
-  <build_depend>drone_msgs</build_depend>
-  <run_depend>drone_msgs</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
