@@ -103,8 +103,7 @@ include_directories(${EIGEN_INCLUDE_DIRS})
 
 ## Declare a cpp executable
 # add_executable(drone_flightcontrol_node src/drone_flightcontrol_node.cpp)
-
-add_executable(flightcontroller src/flightcontroller.cpp)
+add_executable(flight_controller_node src/flight_controller_node.cpp src/flight_controller.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -114,8 +113,7 @@ add_executable(flightcontroller src/flightcontroller.cpp)
 # target_link_libraries(drone_flightcontrol_node
 #   ${catkin_LIBRARIES}
 # )
-
-target_link_libraries(flightcontroller ${catkin_LIBRARIES})
+target_link_libraries(flight_controller_node ${catkin_LIBRARIES})
 
 
 #############
@@ -162,6 +160,11 @@ target_link_libraries(flightcontroller ${catkin_LIBRARIES})
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
+
+catkin_add_gtest(flightControllerTest test/flight_controller_test.cpp src/flight_controller.cpp)
+if(TARGET flightControllerTest)
+	target_link_libraries(flightControllerTest ${catkin_LIBRARIES})
+endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)

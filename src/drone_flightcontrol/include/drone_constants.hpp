@@ -1,21 +1,21 @@
 #ifndef DRONE_CONSTANTS_HPP_
 #define DRONE_CONSTANTS_HPP_
 //air density
-const float rho = 1.225;
+const float RHO = 1.225;
 //mass
-const float m = 3.8;
+const float M = 3.8;
 //gravitational constant
-const float g = 9.81;
+const float G = 9.81;
 //weight
-const float w = m * g;
+const float W = M * G;
 
 /***********************
 temporary assumptions
 ************************/
 //drag coefficient
-const float cd = 0.5;
+const float CD = 0.5;
 
 //body surface area
-const float s = 0.06;
+const float S = 0.06;
 
 #endif //DRONE_CONSTANTS_HPP_
