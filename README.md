@@ -1,4 +1,4 @@
 robotica
 ========
 
-Drone flight control and other related stuff
+Drone flight control ROS modules
