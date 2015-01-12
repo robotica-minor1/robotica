@@ -31,6 +31,6 @@ void Drone::setAxisRotation(Eigen::Vector4f axisAngles) {
 	servos[1].write(((axisAngles[1]*+servoOffset24)*2), servoSpeeds[1]);
 	servos[3].write(((axisAngles[3]*+servoOffset24)*2), servoSpeeds[3]);
 }
-
-
-
+void Drone::setThrust(Eigen::Vector4f thrust) {
+	
+}
