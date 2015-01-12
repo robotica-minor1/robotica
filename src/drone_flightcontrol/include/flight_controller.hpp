@@ -1,17 +1,28 @@
 #ifndef FLIGHT_CONTROLLER_HPP_
 #define FLIGHT_CONTROLLER_HPP_
-#include <ros/ros.h>
-#include <drone_msgs/ThrustSettings.h>
 #include <Eigen/Dense>
+#include <map>
+#include <string> 
+
 class FlightController {
 private:
-	ros::Publisher publisher;
+	/*
+		actuate takes reference thrust axis rotation and attitude, and makes it happen.
+	*/
+	void actuate(Eigen::Vector4f thrustPerEngine, Eigen::Vector4f axisRotation, Eigen::Vector4f referenceAttitude);
+	Eigen::Vector3f direction;
+	std::map<string,int> pidGains;
+	Eigen::Vector3f landingPosition;
+	fc_config config; 
+	string navMode; 
+	
 public: 
-	FlightController(ros::Publisher pub);
-	FlightController(){};
-	drone_msgs::ThrustSettings translate(Eigen::Vector3f direction);
-	void roll();
-	//void rotate();
+	/*
+		setDirection Takes a reference direction and converts it to actuate settings. 
+	*/
+	setDirection(Eigen::Vector3f newDirection);
+	FlightController();
+	//setHoldPosition(Eigen::Vector3f newPosition);
 };
-inline FlightController::FlightController(ros::Publisher pub) : publisher(pub){};
 #endif //FLIGHT_CONTROLLER_HPP_
+ 

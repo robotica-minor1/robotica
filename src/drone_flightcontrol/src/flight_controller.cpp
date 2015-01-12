@@ -1,23 +1,36 @@
 #include <Eigen/Dense>
-#include <ros/ros.h>
-#include <math.h>
-#include <drone_msgs/ThrustSettings.h>
+#include <map>
+#include <string> 
 
-#include "drone_constants.hpp"
+#include "fc_constants.hpp"
+#include "fc_config.hpp"
 #include "flight_controller.hpp"
 
-drone_msgs::ThrustSettings FlightController::translate(Eigen::Vector3f direction) {
-	drone_msgs::ThrustSettings new_msg;
-	Eigen::Vector3f t = direction.array().square() * (CD * RHO * S / 2);
-	t(2) += W;
-	float t_per_engine = t.norm()/4;
-	new_msg.thrust = {t_per_engine, t_per_engine, t_per_engine, t_per_engine};
-	float thrustAngle = atan(t(0)/t(2));
-	new_msg.thrustAngles = {thrustAngle, thrustAngle, thrustAngle, thrustAngle};
-	new_msg.attitude = {atan(t(1) / sqrt(pow(t(0), 2) + pow(t(2), 2))), 0, 0};
-	return new_msg;
+FlightController::FlightController() {
+	pidGains["Roll"] = 0.0;
+	pidGains["Pitch"] = 0.0;
+	pidGains["Heading"] = 0.0;
+	pidGains["Height"] = 0.0;
+	navMode = "Hold";
 }
 
-void FlightController::roll() {
+FlightController::setHoldPosition(Eigen::Vector3f newPosition) {
+	holdPosition = newPosition; 
+	if(holdPosition[2] < config.safetyHeight) {
+		holdPosition[2] = config.safetyHeight; 
+	}
+}
 
+FlightController::navigate() {
+	if (navMode == "Waypoint") {
+		wayPointNavigation(); 
+	} else if (navMode == "Direct") {
+		directControl();
+	} else if (navMode == "Follow" && target) {
+		directControl();
+	} else if (navMode == "Hold") {
+		directControl();
+	} else if (navMode == "Land") {
+		directControl();
+	} 
 }
