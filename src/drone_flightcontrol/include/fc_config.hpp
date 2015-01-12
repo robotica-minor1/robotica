@@ -77,8 +77,7 @@ public:
 	float pidRoll[2];
 	float pidPitch[2];
 	float pidHeight[2];
-
-
+	float masterGain = 1;
 };
 
 

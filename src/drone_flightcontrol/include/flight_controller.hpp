@@ -4,17 +4,29 @@
 #include <map>
 #include <string> 
 
+#include "drone.hpp"
+
 class FlightController {
 private:
-	/*
-		actuate takes reference thrust axis rotation and attitude, and makes it happen.
-	*/
-	void actuate(Eigen::Vector4f thrustPerEngine, Eigen::Vector4f axisRotation, Eigen::Vector4f referenceAttitude);
+	string navMode;
+	float referenceThrust[4];
+	Drone drone;
 	Eigen::Vector3f direction;
 	std::map<string,int> pidGains;
 	Eigen::Vector3f landingPosition;
 	fc_config config; 
-	string navMode; 
+	
+	/*
+		actuate takes reference thrust axis rotation and attitude, and makes it happen.
+	*/
+	void actuate(Eigen::Vector4f thrustPerEngine, Eigen::Vector4f axisRotation, Eigen::Vector4f referenceAttitude);
+	void setThrust(Eigen::Vector4f thrustPerEngine);
+	void updateReferenceThrust();
+	void headingPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity);
+	void rollPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity);
+	void pitchPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity);
+	void heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vector3f differenceVelocity);
+	
 	
 public: 
 	/*
@@ -24,5 +36,7 @@ public:
 	FlightController();
 	//setHoldPosition(Eigen::Vector3f newPosition);
 };
+
+void log(string message);
 #endif //FLIGHT_CONTROLLER_HPP_
  

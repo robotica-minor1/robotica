@@ -20,6 +20,8 @@ private:
 	int servoOffset24 = 20;
 	int servoOffset13 = 70;
 
+	int motorRotationSigns[4] = {-1, 1, -1, 1};
+
 	setupServos();
 public: 
 	Drone();
@@ -31,6 +33,9 @@ public:
 	//body surface area(assumed)
 	float surfaceArea = 0.06;
 
+	Eigen::Vector3f position;
+	Eigen::Vector3f landingSpot;
+	float distanceToLandingSpot;
 	
 };
 
