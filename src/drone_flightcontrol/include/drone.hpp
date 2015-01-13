@@ -1,11 +1,11 @@
 #ifndef DRONE_HPP_
 #define DRONE_HPP_
-#include <Eigen/dense>
+#include <Eigen/Dense>
 #include "VarSpeedServo.h"
 class Drone {
 private:
 	//servo settings
-	int servoPins[4] = {3, 6, 9, 10}
+	int servoPins[4] = {3, 6, 9, 10};
 	VarSpeedServo servos[4];
 	int servoSpeeds[4] = {servoMaxSpeed, servoMaxSpeed, servoMaxSpeed, servoMaxSpeed};
 	int servoMinSpeed = 0; 
@@ -20,9 +20,9 @@ private:
 	int servoOffset24 = 20;
 	int servoOffset13 = 70;
 
-	int motorRotationSigns[4] = {-1, 1, -1, 1};
 
-	setupServos();
+	void setupServos();
+	void updateReferenceThrust(float gain, int signs[4]);
 public: 
 	Drone();
 	void setAxisRotation(Eigen::Vector4f axisAngles);
@@ -36,7 +36,11 @@ public:
 	Eigen::Vector3f position;
 	Eigen::Vector3f landingSpot;
 	float distanceToLandingSpot;
-	
+	Eigen::Vector3f holdPosition;
+	int motorRotationSigns[4] = {-1, 1, -1, 1};
+	Eigen::Vector3f velocity;
+	Eigen::Vector3f acceleration;
+
 };
 
 #endif //DRONE_HPP_

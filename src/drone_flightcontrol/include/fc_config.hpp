@@ -4,7 +4,7 @@
 
 class fc_config {
 public:
-	fc_config(std::string configname);
+	fc_config(){};
 	
 
 	/*
@@ -54,10 +54,10 @@ public:
 	float maxDownSpeed;
 
 	//maximum allowed descent speed. [m/s]
-	float maxUpspeed;
+	float maxUpSpeed;
 
 	//maximum allowed downward acceleration. [m/s^2]
-	float maxDownAcceleration
+	float maxDownAcceleration;
 
 	//maximum allowed speed [m/s]
 	float maxSpeed;

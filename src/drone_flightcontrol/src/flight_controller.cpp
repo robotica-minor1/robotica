@@ -2,6 +2,7 @@
 #include <map>
 #include <string> 
 #include <cmath>
+#include <iostream>
 
 #include "fc_constants.hpp"
 #include "fc_config.hpp"
@@ -14,17 +15,18 @@ FlightController::FlightController() {
 	pidGains["Heading"] = 0.0;
 	pidGains["Height"] = 0.0;
 	navMode = "Hold";
+	drone = Drone();
 }
 
-FlightController::setHoldPosition(Eigen::Vector3f newPosition) {
-	holdPosition = newPosition; 
-	if(holdPosition[2] < config.safetyHeight) {
-		holdPosition[2] = config.safetyHeight; 
+void FlightController::setHoldPosition(Eigen::Vector3f newPosition) {
+	drone.holdPosition = newPosition; 
+	if(drone.holdPosition[2] < config.safetyHeight) {
+		drone.holdPosition[2] = config.safetyHeight; 
 	}
 }
 
-FlightController::navigate() {
-	if (navMode == "Waypoint") {
+void FlightController::navigate() {
+/*	if (navMode == "Waypoint") {
 		wayPointNavigation(); 
 	} else if (navMode == "Direct") {
 		directControl();
@@ -34,12 +36,13 @@ FlightController::navigate() {
 		directControl();
 	} else if (navMode == "Land") {
 		directControl();
-	} 
+	} */
 }
-void Drone::updateReferenceThrust(float gain, int signs[4]) {
+
+void FlightController::updateReferenceThrust(float gain, int signs[]) {
 	for (int i = 0; i < 4; i++) {
 		if (signs[i] != 1 && signs[i] != -1) {
-			log("Incorrect signs for setReferenceThrust!");
+			log("Incorrect signs for updateReferenceThrust!");
 		}
 	}
 
@@ -48,7 +51,7 @@ void Drone::updateReferenceThrust(float gain, int signs[4]) {
 	}
 }
 
- void Drone::headingPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity){
+void FlightController::headingPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity){
  	//get PID values
 	float KP = config.pidHeading[0];
 	float KD = config.pidHeading[1];
@@ -62,17 +65,17 @@ void Drone::updateReferenceThrust(float gain, int signs[4]) {
 	//update reference thrust
 	if(gain > 0 && diffRotationalVelocity[2] <= config.maxYawRotationalVel) {
 		log("Turn-R");
-		setReferenceThrust(gain, motorRotationSigns);
+		updateReferenceThrust(gain, drone.motorRotationSigns);
 	} else if (gain < 0 && diffRotationalVelocity[2] >= -config.maxYawRotationalVel) {
 		log("Turn-L");
-		setReferenceThrust(gain, motorRotationSigns);
+		updateReferenceThrust(gain, drone.motorRotationSigns);
 	} else {
 		log("Heading out of bounds set by maxYawRotationalVel");
 	}
 }
 
 
-void Drone::rollPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity){
+void FlightController::rollPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity){
 	//get PID values
 	float KP = config.pidRoll[0];
 	float KD = config.pidRoll[1];
@@ -84,19 +87,20 @@ void Drone::rollPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVeloc
 	pidGains["Roll"] = gain;
 	
 	//update reference thrust
+	int signs[4] = {1, -1, -1, 1};
 	if(gain > 0 && diffRotationalVelocity[0] <= config.maxRollRotationalVel) {
 		log("Roll-R");
-		setReferenceThrust(gain, {1, -1, -1, 1});
+		updateReferenceThrust(gain, signs);
 	} else if (gain < 0 && diffRotationalVelocity[0] >= -config.maxRollRotationalVel) {
 		log("Roll-L");
-		setReferenceThrust(gain, {1, -1, -1, 1});
+		updateReferenceThrust(gain, signs);
 	} else {
 		log("Roll out of bounds set by maxRollRotationalVel");
 	}
 }
 
 
-void Drone::pitchPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity){
+void FlightController::pitchPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity){
 	//get PID values
 	float KP = config.pidPitch[0];
 	float KD = config.pidPitch[1];
@@ -108,17 +112,19 @@ void Drone::pitchPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelo
 	pidGains["Pitch"] = gain;
 	
 	//update reference thrust
+	int signs[4] = {-1, -1, 1, 1};
 	if(gain > 0 && diffRotationalVelocity[1] <= config.maxPitchRotationalVel) {
 		log("Forward");
-		setReferenceThrust(gain, {-1, -1, 1, 1});
+		updateReferenceThrust(gain, signs);
 	} else if (gain < 0 && diffRotationalVelocity[1] >= -config.maxPitchRotationalVel) {
 		log("Backward");
-		setReferenceThrust(gain, {-1, -1, 1, 1});
+		updateReferenceThrust(gain, signs);
 	} else {
 		log("Pitch out of bounds set by maxPitchRotationalVel");
 	}
 }
-void Drone::heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vector3f differenceVelocity){
+
+void FlightController::heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vector3f differenceVelocity){
 	//get PID values
 	float KP = config.pidHeight[0];
 	float KD = config.pidHeight[1];
@@ -136,25 +142,26 @@ void Drone::heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vector3f differe
 	pidGains["Height"] = gain;
 
 	//update reference thrust
+	int signs[4] = {1, 1, 1, 1};
 	if (drone.velocity[2] <= -config.maxDownSpeed || 
 		drone.acceleration[2] <= -config.maxDownAcceleration && 
-		drone.velocity < 0) {
+		drone.velocity[2] < 0) {
 		log("Moving down too fast");
 
 		gain = fabs(gain);
-		updateReferenceThrust(gain, {1, 1, 1, 1});
+		updateReferenceThrust(gain, signs);
 	} else if (drone.velocity[2] <= config.maxUpSpeed) {
 		if (gain > 0) {
 			log("Up");
-			updateReferenceThrust(gain, {1, 1, 1, 1});
-		} else if (gain < 0 && drone.velocity[2] => -config.maxDownSpeed) {
+			updateReferenceThrust(gain, signs);
+		} else if (gain < 0 && drone.velocity[2] >= -config.maxDownSpeed) {
 			log("Down");
-			updateReferenceThrust(gain, {1, 1, 1, 1});
+			updateReferenceThrust(gain, signs);
 		}
 	}
 
 }
 
-void log(string message) {
+void log(std::string message) {
 	std::cout << message << std::endl; 
 }
