@@ -25,7 +25,7 @@ public:
 
     angles get_angles() const;
     vec3 get_acceleration() const;
-    //vec3 get_speed() const;
+    vec3 get_speed() const;
 
     float get_temperature() const;
 

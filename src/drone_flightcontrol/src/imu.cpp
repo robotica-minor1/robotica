@@ -94,6 +94,10 @@ void imu::poll() {
     gyroYangle += gyroYrate * dt;
     gyroZangle += gyroZrate * dt - yawOffset * dt;
 
+    speed.x += accX * dt;
+    speed.y += accY * dt;
+    speed.z += (accZ - 9.81) * dt;
+
     // Determine yaw offset
     if (!calibrated && millis() - start_t >= 1000) {
         yawOffset = gyroZangle;
@@ -118,6 +122,9 @@ vec3 imu::get_acceleration() const {
     return vec3(accX, accY, accZ);
 }
 
+vec3 imu::get_speed() const {
+    return speed;
+}
 float imu::get_temperature() const {
     return (float) tempRaw / 340.0f + 36.53f;
 }
