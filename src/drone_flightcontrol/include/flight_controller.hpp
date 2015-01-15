@@ -15,8 +15,7 @@ private:
 	Eigen::Vector3f direction;
 	
 	Eigen::Vector3f landingPosition;
-	fc_config config; 
-	
+		
 	
 	/*
 		actuate takes reference thrust axis rotation and attitude, and makes it happen.

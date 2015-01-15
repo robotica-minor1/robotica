@@ -1,20 +1,16 @@
 #ifndef FC_CONFIG_HPP
 #define FC_CONFIG_HPP
-#include <string>
+#include <cmath> 
 
-class fc_config {
-public:
-	fc_config(){};
-	
-
+namespace fc_config {
 	/*
 		Control settings
 	*/
 	//maximum speed while on manual control. [m/s]
-	float maxSpeedInput; 
+	static float maxSpeedInput; 
 	
 	//Maximum rotational velocity on yaw (manual control only) [Degrees/s]
-	float maxYawRotation; 
+	static float maxYawRotation; 
 
 
 	/*
@@ -22,65 +18,62 @@ public:
 	*/
 
 	//True - land. False - hold. 
-	bool landAfterFlightpath;
+	static bool landAfterFlightpath;
 
 	//When this close to target, target has been 'reached' [m]
-	float proximityTreshold;
+	static float proximityTreshold;
 
 	//maximum speed to descend while landing [m/s]
-	float landDescentSpeed;
+	static float landDescentSpeed;
 
 	//while landing, drone is allowed to land this far from ideal landing spot, 
 	//it will still attempt to get as close as possible. [m]
-	float landingPrecision;
+	static float landingPrecision;
 
 	//Only look north. debug purposes
-	bool fixHeading;
+	static bool fixHeading;
 
 	//prevent the drone from flying sideways
-	bool forceForwardFlight; 
+	static bool forceForwardFlight; 
 
 	//drone may only move when its heading is between the target heading +- this precision. [degrees]
-	float safeHeadingPrecision;
+	static float safeHeadingPrecision;
 
 	/*
 		Safety settings
 	*/
 
 	//drone will attempt to stay above this height while in flight. [m]
-	float safetyHeight;
-
-	//maximum allowed ascent speed. [m/s]
-	float maxDownSpeed;
+	static float safetyHeight = 3;
 
 	//maximum allowed descent speed. [m/s]
-	float maxUpSpeed;
+	static float maxDownSpeed = 1.5;
+
+	//maximum allowed ascent speed. [m/s]
+	static float maxUpSpeed = 3;
 
 	//maximum allowed downward acceleration. [m/s^2]
-	float maxDownAcceleration;
+	static float maxDownAcceleration = 1;
 
 	//maximum allowed speed [m/s]
-	float maxSpeed;
+	static float maxSpeed = 5;
 
 	//Maximum allowable pitch. [radians]
-	float maxPitch;
+	static float maxPitch;
 
 	//Maximum allowable yaw. [radians]
-	float maxYaw;
+	static float maxYaw;
 
 	//maximum allowable rotational velocity [radians]
-	float maxPitchRotationalVel;
-	float maxRollRotationalVel;
-	float maxYawRotationalVel;
+	static float maxPitchRotationalVel;
+	static float maxRollRotationalVel;
+	static float maxYawRotationalVel;
 	//PID values. P and D only. 
-	float pidHeading[2];
-	float pidRoll[2];
-	float pidPitch[2];
-	float pidHeight[2];
-	float masterGain = 1;
-};
-
-
-
+	static float pidHeading[2];
+	static float pidRoll[2];
+	static float pidPitch[2];
+	static float pidHeight[2];
+	static float masterGain = 1;
+}
 
 #endif //FC_CONFIG_HPP

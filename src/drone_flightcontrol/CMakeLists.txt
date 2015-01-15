@@ -105,7 +105,7 @@ include_directories(${EIGEN_INCLUDE_DIRS})
 
 ## Declare a cpp executable
 # add_executable(drone_flightcontrol_node src/drone_flightcontrol_node.cpp)
-add_executable(flight_controller src/flight_controller.cpp src/drone.cpp lib/VarSpeedServo.cpp)
+add_executable(flight_controller src/flight_controller.cpp src/drone.cpp src/testprogram.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes

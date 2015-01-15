@@ -20,8 +20,8 @@ FlightController::FlightController() {
 
 void FlightController::setHoldPosition(Eigen::Vector3f newPosition) {
 	drone.holdPosition = newPosition; 
-	if(drone.holdPosition[2] < config.safetyHeight) {
-		drone.holdPosition[2] = config.safetyHeight; 
+	if(drone.holdPosition[2] < fc_config::safetyHeight) {
+		drone.holdPosition[2] = fc_config::safetyHeight; 
 	}
 }
 
@@ -53,20 +53,20 @@ void FlightController::updateReferenceThrust(float gain, int signs[]) {
 
 void FlightController::headingPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity){
  	//get PID values
-	float KP = config.pidHeading[0];
-	float KD = config.pidHeading[1];
+	float KP = fc_config::pidHeading[0];
+	float KD = fc_config::pidHeading[1];
 
 	//calculate gain
 	float gain = diffAtt[2] * KP + diffRotationalVelocity[2] * KD;
 
-	gain *= config.masterGain;
+	gain *= fc_config::masterGain;
 	pidGains["Heading"] = gain;
 
 	//update reference thrust
-	if(gain > 0 && diffRotationalVelocity[2] <= config.maxYawRotationalVel) {
+	if(gain > 0 && diffRotationalVelocity[2] <= fc_config::maxYawRotationalVel) {
 		log("Turn-R");
 		updateReferenceThrust(gain, drone.motorRotationSigns);
-	} else if (gain < 0 && diffRotationalVelocity[2] >= -config.maxYawRotationalVel) {
+	} else if (gain < 0 && diffRotationalVelocity[2] >= -fc_config::maxYawRotationalVel) {
 		log("Turn-L");
 		updateReferenceThrust(gain, drone.motorRotationSigns);
 	} else {
@@ -77,21 +77,21 @@ void FlightController::headingPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffR
 
 void FlightController::rollPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity){
 	//get PID values
-	float KP = config.pidRoll[0];
-	float KD = config.pidRoll[1];
+	float KP = fc_config::pidRoll[0];
+	float KD = fc_config::pidRoll[1];
 
 	//calculate gain
 	float gain = diffAtt[0] * KP + diffRotationalVelocity[0] * KD;
 
-	gain *= config.masterGain;
+	gain *= fc_config::masterGain;
 	pidGains["Roll"] = gain;
 	
 	//update reference thrust
 	int signs[4] = {1, -1, -1, 1};
-	if(gain > 0 && diffRotationalVelocity[0] <= config.maxRollRotationalVel) {
+	if(gain > 0 && diffRotationalVelocity[0] <= fc_config::maxRollRotationalVel) {
 		log("Roll-R");
 		updateReferenceThrust(gain, signs);
-	} else if (gain < 0 && diffRotationalVelocity[0] >= -config.maxRollRotationalVel) {
+	} else if (gain < 0 && diffRotationalVelocity[0] >= -fc_config::maxRollRotationalVel) {
 		log("Roll-L");
 		updateReferenceThrust(gain, signs);
 	} else {
@@ -102,21 +102,21 @@ void FlightController::rollPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRota
 
 void FlightController::pitchPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity){
 	//get PID values
-	float KP = config.pidPitch[0];
-	float KD = config.pidPitch[1];
+	float KP = fc_config::pidPitch[0];
+	float KD = fc_config::pidPitch[1];
 
 	//calculate gain
 	float gain = diffAtt[1] * KP + diffRotationalVelocity[1] * KD;
 
-	gain *= config.masterGain;
+	gain *= fc_config::masterGain;
 	pidGains["Pitch"] = gain;
 	
 	//update reference thrust
 	int signs[4] = {-1, -1, 1, 1};
-	if(gain > 0 && diffRotationalVelocity[1] <= config.maxPitchRotationalVel) {
+	if(gain > 0 && diffRotationalVelocity[1] <= fc_config::maxPitchRotationalVel) {
 		log("Forward");
 		updateReferenceThrust(gain, signs);
-	} else if (gain < 0 && diffRotationalVelocity[1] >= -config.maxPitchRotationalVel) {
+	} else if (gain < 0 && diffRotationalVelocity[1] >= -fc_config::maxPitchRotationalVel) {
 		log("Backward");
 		updateReferenceThrust(gain, signs);
 	} else {
@@ -126,35 +126,35 @@ void FlightController::pitchPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRot
 
 void FlightController::heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vector3f differenceVelocity){
 	//get PID values
-	float KP = config.pidHeight[0];
-	float KD = config.pidHeight[1];
+	float KP = fc_config::pidHeight[0];
+	float KD = fc_config::pidHeight[1];
 
 	//calculate gain
 	float gain = absoluteDirection[2] * KP + differenceVelocity[2] * KD;
 
 	//check whether or not we're above the safety height
-	if (drone.position[2] < config.safetyHeight && drone.distanceToLandingSpot > config.landingPrecision) {
+	if (drone.position[2] < fc_config::safetyHeight && drone.distanceToLandingSpot > fc_config::landingPrecision) {
 		log("Below safety height!");
-		gain = KP * (config.safetyHeight - drone.position[2]);
+		gain = KP * (fc_config::safetyHeight - drone.position[2]);
 	}
 
-	gain *= config.masterGain;
+	gain *= fc_config::masterGain;
 	pidGains["Height"] = gain;
 
 	//update reference thrust
 	int signs[4] = {1, 1, 1, 1};
-	if (drone.velocity[2] <= -config.maxDownSpeed || 
-		drone.acceleration[2] <= -config.maxDownAcceleration && 
+	if (drone.velocity[2] <= -fc_config::maxDownSpeed || 
+		drone.acceleration[2] <= -fc_config::maxDownAcceleration && 
 		drone.velocity[2] < 0) {
 		log("Moving down too fast");
 
 		gain = fabs(gain);
 		updateReferenceThrust(gain, signs);
-	} else if (drone.velocity[2] <= config.maxUpSpeed) {
+	} else if (drone.velocity[2] <= fc_config::maxUpSpeed) {
 		if (gain > 0) {
 			log("Up");
 			updateReferenceThrust(gain, signs);
-		} else if (gain < 0 && drone.velocity[2] >= -config.maxDownSpeed) {
+		} else if (gain < 0 && drone.velocity[2] >= -fc_config::maxDownSpeed) {
 			log("Down");
 			updateReferenceThrust(gain, signs);
 		}
