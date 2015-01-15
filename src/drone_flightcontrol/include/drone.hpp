@@ -1,12 +1,12 @@
 #ifndef DRONE_HPP_
 #define DRONE_HPP_
 #include <Eigen/Dense>
-#include "VarSpeedServo.h"
+// #include "VarSpeedServo.h"
 class Drone {
 private:
 	//servo settings
 	int servoPins[4] = {3, 6, 9, 10};
-	VarSpeedServo servos[4];
+	// VarSpeedServo servos[4];
 	int servoSpeeds[4] = {servoMaxSpeed, servoMaxSpeed, servoMaxSpeed, servoMaxSpeed};
 	int servoMinSpeed = 0; 
 	int servoMaxSpeed = 127;
