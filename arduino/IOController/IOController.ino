@@ -11,6 +11,7 @@
 //
 // << imu <pitch> <yaw> <roll> <accX> <accY> <accZ> (degrees * 1000, m/s^2 * 1000)
 // << sonar <dist> (cm)
+// << ack (sent if setter command successful, pollimu+pollsonar will respond with data instead)
 // << error (sent if command is wrong, other errors cause undefined behaviour)
 
 #include <VarSpeedServo.h>
@@ -112,45 +113,7 @@ void setup() {
     servo4.write(minPulse+((minPulse/(maxAngle))*alpha), startSpeed);
 
     // Init I2C for IMU
-    Wire.begin();
-    TWBR = ((F_CPU / 400000L) - 16) / 2; // Set I2C frequency to 400kHz
-
-    i2cData[0] = 7; // Set the sample rate to 1000Hz - 8kHz/(7+1) = 1000Hz
-    i2cData[1] = 0x00; // Disable FSYNC and set 260 Hz Acc filtering, 256 Hz Gyro filtering, 8 KHz sampling
-    i2cData[2] = 0x00; // Set Gyro Full Scale Range to ±250deg/s
-    i2cData[3] = 0x00; // Set Accelerometer Full Scale Range to ±2g
-    while (i2cWrite(0x19, i2cData, 4, false)); // Write to all four registers at once
-    while (i2cWrite(0x6B, 0x01, true)); // PLL with X axis gyroscope reference and disable sleep mode
-
-    while (i2cRead(0x75, i2cData, 1));
-    if (i2cData[0] != 0x68) { // Read "WHO_AM_I" register
-        Serial.print(F("Error reading sensor"));
-        while (1);
-    }
-
-    delay(100); // Wait for sensor to stabilize
-
-    /* Set kalman and gyro starting angle */
-    while (i2cRead(0x3B, i2cData, 6));
-    accX = (i2cData[0] << 8) | i2cData[1];
-    accY = (i2cData[2] << 8) | i2cData[3];
-    accZ = (i2cData[4] << 8) | i2cData[5];
-
-    // Source: http://www.freescale.com/files/sensors/doc/app_note/AN3461.pdf eq. 25 and eq. 26
-    // atan2 outputs the value of -π to π (radians) - see http://en.wikipedia.org/wiki/Atan2
-    // It is then converted from radians to degrees
-    double roll  = atan2(accY, accZ) * RAD_TO_DEG;
-    double pitch = atan(-accX / sqrt(accY * accY + accZ * accZ)) * RAD_TO_DEG;
-
-    kalmanX.setAngle(roll); // Set starting angle
-    kalmanY.setAngle(pitch);
-    gyroXangle = roll;
-    gyroYangle = pitch;
-    compAngleX = roll;
-    compAngleY = pitch;
-
-    timer = micros();
-    start_t = millis();
+    //initIMU();
 }
 
 void loop() {
@@ -204,6 +167,8 @@ void parseCommand(const char* buf) {
         servo2.write(((angles[1]+alpha)*2), speeds[1]);
         servo3.write(((angles[2]*-1+beta)*2), speeds[2]);
         servo4.write(((angles[3]+alpha)*2), speeds[3]);
+        
+        Serial.println("ack");
     } else if (strcmp(command, "props") == 0) {
         sscanf(buf, "props %d %d %d %d", &args[0], &args[1], &args[2], &args[3]);
 
@@ -211,10 +176,14 @@ void parseCommand(const char* buf) {
         esc2.writeMicroseconds(constrain(thrust2microseconds(args[1] / 1000.0f - 1.0f), 900, 1700));
         esc3.writeMicroseconds(constrain(thrust2microseconds(args[2] / 1000.0f - 1.0f), 900, 1700));
         esc4.writeMicroseconds(constrain(thrust2microseconds(args[3] / 1000.0f - 1.0f), 900, 1700));
+        
+        Serial.println("ack");
     } else if (strcmp(command, "retracts") == 0) {
         sscanf(buf, "retracts %d", &args[0]);
 
         retracts.write(args[0] == 1 ? 135 : 45);
+        
+        Serial.println("ack");
     } else if (strcmp(command, "pollimu") == 0) {
         sprintf(
             response,
@@ -238,8 +207,50 @@ void parseCommand(const char* buf) {
         Serial.println("error");
     }
 
-    pollIMU();
+    //pollIMU();
     delay(2);
+}
+
+void initIMU() {
+    Wire.begin();
+    TWBR = ((F_CPU / 400000L) - 16) / 2; // Set I2C frequency to 400kHz
+
+    i2cData[0] = 7; // Set the sample rate to 1000Hz - 8kHz/(7+1) = 1000Hz
+    i2cData[1] = 0x00; // Disable FSYNC and set 260 Hz Acc filtering, 256 Hz Gyro filtering, 8 KHz sampling
+    i2cData[2] = 0x00; // Set Gyro Full Scale Range to ±250deg/s
+    i2cData[3] = 0x00; // Set Accelerometer Full Scale Range to ±2g
+    while (i2cWrite(0x19, i2cData, 4, false)); // Write to all four registers at once
+    while (i2cWrite(0x6B, 0x01, true)); // PLL with X axis gyroscope reference and disable sleep mode
+
+    while (i2cRead(0x75, i2cData, 1));
+    if (i2cData[0] != 0x68) { // Read "WHO_AM_I" register
+        Serial.print(F("Error reading sensor"));
+        while (1);
+    }
+
+    delay(100); // Wait for sensor to stabilize
+
+    /* Set kalman and gyro starting angle */
+    while (i2cRead(0x3B, i2cData, 6));
+    accX = (i2cData[0] << 8) | i2cData[1];
+    accY = (i2cData[2] << 8) | i2cData[3];
+    accZ = (i2cData[4] << 8) | i2cData[5];
+
+    // Source: http://www.freescale.com/files/sensors/doc/app_note/AN3461.pdf eq. 25 and eq. 26
+    // atan2 outputs the value of -π to π (radians) - see http://en.wikipedia.org/wiki/Atan2
+    // It is then converted from radians to degrees
+    double roll  = atan2(accY, accZ) * RAD_TO_DEG;
+    double pitch = atan(-accX / sqrt(accY * accY + accZ * accZ)) * RAD_TO_DEG;
+
+    kalmanX.setAngle(roll); // Set starting angle
+    kalmanY.setAngle(pitch);
+    gyroXangle = roll;
+    gyroYangle = pitch;
+    compAngleX = roll;
+    compAngleY = pitch;
+
+    timer = micros();
+    start_t = millis();
 }
 
 void pollIMU() {
