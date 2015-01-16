@@ -4,7 +4,7 @@
 // Commands (>> = rpi to arduino, << = arduino to rpi):
 //
 // >> servos <ang1> <ang2> <ang3> <ang4> <speed1> <speed2> <speed3> <speed4> (degrees, deg/s?)
-// >> props <prop1> <prop2> <prop3> <prop4> (power between 800 and 2000)
+// >> props <prop1> <prop2> <prop3> <prop4> (thrust in newton tussen -1 en 10)
 // >> retracts <0/1> (1 = down)
 // >> pollimu
 // >> pollsonar
@@ -78,6 +78,21 @@ double kalAngleX, kalAngleY;
 
 uint32_t timer;
 uint8_t i2cData[14];
+
+// Motoren: 900 = 2000 RPM = -0.7 N, 1700 = 10600 RPM = 9.95 N
+//
+// Formules:
+//
+// rpm = microsec * 10.75 - 7675
+// microsec = (rpm + 7675) / 10.75
+// thrust = 0.001238372 * rpm - 3.176744
+// rpm = (thrust + 3.176744) / 0.001238372
+//
+// Dus: 
+int thrust2microseconds(float thrust) {
+    float rpm = (thrust + 3.176744f) / 0.001238372f;
+    return (rpm + 7675) / 10.75f;
+}
 
 void setup() {
     Serial.begin(115200);
@@ -192,10 +207,10 @@ void parseCommand(const char* buf) {
     } else if (strcmp(command, "props") == 0) {
         sscanf(buf, "props %d %d %d %d", &args[0], &args[1], &args[2], &args[3]);
 
-        esc1.writeMicroseconds(args[0]);
-        esc2.writeMicroseconds(args[1]);
-        esc3.writeMicroseconds(args[2]);
-        esc4.writeMicroseconds(args[3]);
+        esc1.writeMicroseconds(constrain(thrust2microseconds(args[0]), 900, 1700));
+        esc2.writeMicroseconds(constrain(thrust2microseconds(args[1]), 900, 1700));
+        esc3.writeMicroseconds(constrain(thrust2microseconds(args[2]), 900, 1700));
+        esc4.writeMicroseconds(constrain(thrust2microseconds(args[3]), 900, 1700));
     } else if (strcmp(command, "retracts") == 0) {
         sscanf(buf, "retracts %d", &args[0]);
 
