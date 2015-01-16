@@ -1,1 +1,2 @@
-/opt/ros/indigo/share/catkin/cmake/toplevel.cmake
+include_directories(../include ../lib)
+add_executable(flightController flight_controller.cpp drone.cpp testprogram.cpp)
