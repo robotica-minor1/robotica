@@ -4,7 +4,7 @@
 // Commands (>> = rpi to arduino, << = arduino to rpi):
 //
 // >> servos <ang1> <ang2> <ang3> <ang4> <speed1> <speed2> <speed3> <speed4> (degrees, deg/s?)
-// >> props <prop1> <prop2> <prop3> <prop4> (thrust in newton tussen -1 en 10)
+// >> props <prop1> <prop2> <prop3> <prop4> (thrust in micronewton tussen 0 en 11,000)
 // >> retracts <0/1> (1 = down)
 // >> pollimu
 // >> pollsonar
@@ -207,10 +207,10 @@ void parseCommand(const char* buf) {
     } else if (strcmp(command, "props") == 0) {
         sscanf(buf, "props %d %d %d %d", &args[0], &args[1], &args[2], &args[3]);
 
-        esc1.writeMicroseconds(constrain(thrust2microseconds(args[0]), 900, 1700));
-        esc2.writeMicroseconds(constrain(thrust2microseconds(args[1]), 900, 1700));
-        esc3.writeMicroseconds(constrain(thrust2microseconds(args[2]), 900, 1700));
-        esc4.writeMicroseconds(constrain(thrust2microseconds(args[3]), 900, 1700));
+        esc1.writeMicroseconds(constrain(thrust2microseconds(args[0] / 1000.0f - 1.0f), 900, 1700));
+        esc2.writeMicroseconds(constrain(thrust2microseconds(args[1] / 1000.0f - 1.0f), 900, 1700));
+        esc3.writeMicroseconds(constrain(thrust2microseconds(args[2] / 1000.0f - 1.0f), 900, 1700));
+        esc4.writeMicroseconds(constrain(thrust2microseconds(args[3] / 1000.0f - 1.0f), 900, 1700));
     } else if (strcmp(command, "retracts") == 0) {
         sscanf(buf, "retracts %d", &args[0]);
 
