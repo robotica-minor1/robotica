@@ -22,20 +22,20 @@
 #include "Kalman.h"
 
 // Configuration
-const int PIN_ESC1 = 13;
-const int PIN_ESC2 = 12;
-const int PIN_ESC3 = 11;
-const int PIN_ESC4 = 10;
+const int PIN_ESC1 = 2;
+const int PIN_ESC2 = 3;
+const int PIN_ESC3 = 4;
+const int PIN_ESC4 = 5;
 
-const int PIN_SERVO1 = 3;
-const int PIN_SERVO2 = 6;
-const int PIN_SERVO3 = 9;
+const int PIN_SERVO1 = 13;
+const int PIN_SERVO2 = 12;
+const int PIN_SERVO3 = 11;
 const int PIN_SERVO4 = 10;
 
 const int PIN_US_TRIGGER = 52;
 const int PIN_US_ECHO = 53;
 
-const int PIN_RETRACTS = 2;
+const int PIN_RETRACTS = 48;
 
 const int SONAR_MAX_DIST = 200;
 
