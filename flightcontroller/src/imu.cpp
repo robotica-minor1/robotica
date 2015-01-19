@@ -1,8 +1,36 @@
 #include <stdexcept>
+#include <cmath>
+#include <unistd.h>
 
 #include "i2c.hpp"
 #include "imu.hpp"
 #include "kalman.hpp"
+
+const double PI = 3.1415926535897;
+const double RAD_TO_DEG = 180.0 / PI;
+
+void delay(long msecs) {
+    usleep(msecs * 1000);
+}
+
+long micros() {
+    static timespec t_start;
+    static bool init = false;
+
+    timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+
+    if (!init) {
+        t_start = t;
+        init = true;
+    }
+
+    return (t.tv_sec - t_start.tv_sec) * 1000 * 1000 + t.tv_nsec / 1000;
+}
+
+long millis() {
+    return micros() / 1000;
+}
 
 imu& imu::get() {
     static imu instance;
@@ -10,18 +38,13 @@ imu& imu::get() {
 }
 
 imu::imu() : calibrated(false), start_t(0), yawOffset(0) {
-    Wire.begin();
-
-    // Set I2C frequency to 400 kHz
-    TWBR = ((F_CPU / 400000L) - 16) / 2;
-
     i2cData[0] = 7; // Set sample rate to 1000 Hz = 8000 Hz / (7 + 1)
     i2cData[1] = 0x00; // Disable FSYNC and set 260 Hz Acc filtering, 256 Hz Gyro filtering, 8 KHz sampling
     i2cData[2] = 0x00; // Set Gyro Full Scale Range to ±250deg/s
     i2cData[3] = 0x00; // Set Accelerometer Full Scale Range to ±2g
 
-    while (i2c::write(0x19, i2cData, 4, false)); // Write to all four registers at once
-    while (i2c::write(0x6B, 0x01, true)); // PLL with X axis gyroscope reference and disable sleep mode
+    while (i2c::write(0x19, i2cData, 4)); // Write to all four registers at once
+    while (i2c::write(0x6B, 0x01)); // PLL with X axis gyroscope reference and disable sleep mode
 
     while (i2c::read(0x75, i2cData, 1));
     if (i2cData[0] != 0x68) {
