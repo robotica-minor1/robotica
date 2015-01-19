@@ -5,7 +5,7 @@
 //
 // >> servos <ang1> <ang2> <ang3> <ang4> <speed1> <speed2> <speed3> <speed4> (degrees, +/- 40)
 // >> props <prop1> <prop2> <prop3> <prop4> (thrust in micronewton tussen 0 en 11,000)
-// >> retracts <0/1> (1 = down)
+// >> retracts <0/1> (1 = up)
 // >> pollimu
 // >> pollsonar
 //
@@ -13,11 +13,12 @@
 // << sonar <dist> (cm)
 // << ack (sent if setter command successful, pollimu+pollsonar will respond with data instead)
 // << error (sent if command is wrong, other errors cause undefined behaviour)
+//
+// TODO: Prop signalen opbouwen en afbouwen en directe prop input accepteren (propsraw)
 
 #include <VarSpeedServo.h>
 #include <NewPing.h>
 #include <EEPROM.h>
-//#include <Servo.h>
 #include <Wire.h>
 
 #include "Kalman.h"
@@ -91,6 +92,11 @@ void setup() {
     esc3.attach(PIN_ESC3);
     esc4.attach(PIN_ESC4);
 
+    esc1.writeMicroseconds(800);
+    esc2.writeMicroseconds(800);
+    esc3.writeMicroseconds(800);
+    esc4.writeMicroseconds(800);
+
     // Init servos
     servo1.write(minPulse+((minPulse/(maxAngle))*beta), startSpeed);
     servo2.write(minPulse+((minPulse/(maxAngle))*alpha), startSpeed);
@@ -154,10 +160,37 @@ void parseCommand(const char* buf) {
     } else if (strcmp(command, "props") == 0) {
         sscanf(buf, "props %d %d %d %d", &args[0], &args[1], &args[2], &args[3]);
 
-        esc1.writeMicroseconds(constrain(thrust2microseconds(args[0] / 1000.0f - 1.0f), 900, 1700));
-        esc2.writeMicroseconds(constrain(thrust2microseconds(args[1] / 1000.0f - 1.0f), 900, 1700));
-        esc3.writeMicroseconds(constrain(thrust2microseconds(args[2] / 1000.0f - 1.0f), 900, 1700));
-        esc4.writeMicroseconds(constrain(thrust2microseconds(args[3] / 1000.0f - 1.0f), 900, 1700));
+        if (args[0] == 0) {
+            Serial.println("nil");
+            esc1.writeMicroseconds(877);
+        } else {
+            esc1.writeMicroseconds(constrain(thrust2microseconds(args[0] / 1000.0f - 1.0f), 700, 1700));
+            Serial.println(constrain(thrust2microseconds(args[1] / 1000.0f - 1.0f), 700, 1700));
+        }
+
+        if (args[1] == 0) {
+            esc2.writeMicroseconds(877);
+            Serial.println("nil");
+        } else {
+            esc2.writeMicroseconds(constrain(thrust2microseconds(args[1] / 1000.0f - 1.0f), 700, 1700));
+            Serial.println(constrain(thrust2microseconds(args[1] / 1000.0f - 1.0f), 700, 1700));
+        }
+
+        if (args[2] == 0) {
+            esc3.writeMicroseconds(877);
+            Serial.println("nil");
+        } else {
+            esc3.writeMicroseconds(constrain(thrust2microseconds(args[2] / 1000.0f - 1.0f), 700, 1700));
+            Serial.println(constrain(thrust2microseconds(args[2] / 1000.0f - 1.0f), 700, 1700));
+        }
+
+        if (args[3] == 0) {
+            esc4.writeMicroseconds(877);
+            Serial.println("nil");
+        } else {
+            esc4.writeMicroseconds(constrain(thrust2microseconds(args[3] / 1000.0f - 1.0f), 700, 1700));
+            Serial.println(constrain(thrust2microseconds(args[3] / 1000.0f - 1.0f), 700, 1700));
+        }
         
         Serial.println("ack");
     } else if (strcmp(command, "retracts") == 0) {
