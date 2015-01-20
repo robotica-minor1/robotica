@@ -16,11 +16,12 @@ public:
     Eigen::Vector3f get_angles() const;
     Eigen::Vector3f get_acceleration() const;// TODO: Omzetten naar m/s^2 (op dit moment g verhouding)
     Eigen::Vector3f get_speed() const;// TODO: Omzetten naar m/s
+    Eigen::Vector3f get_rotational_acceleration() const; 
 
     float get_temperature() const;
 
 private:
-    Eigen::Vector3f acc, speed, ang;
+    Eigen::Vector3f acc, speed, ang, rotationalAcc;
 
     Kalman kalmanX, kalmanY;
 

@@ -8,7 +8,7 @@
 #include "fc_config.hpp"
 #include "flight_controller.hpp"
 #include "drone.hpp"
-
+#include "imu.hpp"
 void FlightController::run() {
 	while(true) {
 		Eigen::Vector3f diffAtt = getDifferenceAttitude();

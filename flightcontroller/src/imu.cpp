@@ -57,13 +57,13 @@ imu::imu() : calibrated(false), start_t(0), yawOffset(0) {
 
     // Set kalman and gyro start angle
     while (i2c::read(0x3B, i2cData, 6));
-    accX = (i2cData[0] << 8) | i2cData[1];
-    accY = (i2cData[2] << 8) | i2cData[3];
-    accZ = (i2cData[4] << 8) | i2cData[5];
+    acc[0] = (i2cData[0] << 8) | i2cData[1];
+    acc[1] = (i2cData[2] << 8) | i2cData[3];
+    acc[2] = (i2cData[4] << 8) | i2cData[5];
 
     // Calculate roll/pitch using accelerometer, restricting roll to +-90 deg
-    double roll  = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
-    double pitch = atan2(-accX, accZ) * RAD_TO_DEG;
+    double roll  = atan(acc[1] / sqrt(acc[0] * acc[0] + acc[2] * acc[2])) * RAD_TO_DEG;
+    double pitch = atan2(-acc[0], acc[2]) * RAD_TO_DEG;
 
     kalmanX.setAngle(roll);
     kalmanY.setAngle(pitch);
@@ -80,9 +80,9 @@ imu::imu() : calibrated(false), start_t(0), yawOffset(0) {
 void imu::poll() {
     // Update values
     while (i2c::read(0x3B, i2cData, 14));
-    accX = ((i2cData[0] << 8) | i2cData[1]);
-    accY = ((i2cData[2] << 8) | i2cData[3]);
-    accZ = ((i2cData[4] << 8) | i2cData[5]);
+    acc[0] = ((i2cData[0] << 8) | i2cData[1]);
+    acc[1] = ((i2cData[2] << 8) | i2cData[3]);
+    acc[2] = ((i2cData[4] << 8) | i2cData[5]);
     tempRaw = (i2cData[6] << 8) | i2cData[7];
     gyroX = (i2cData[8] << 8) | i2cData[9];
     gyroY = (i2cData[10] << 8) | i2cData[11];
@@ -91,12 +91,13 @@ void imu::poll() {
     double dt = (double)(micros() - timer) / 1000000;
     timer = micros();
 
-    double roll  = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
-    double pitch = atan2(-accX, accZ) * RAD_TO_DEG;
+    double roll  = atan(acc[1] / sqrt(acc[0] * acc[0] + acc[2] * acc[2])) * RAD_TO_DEG;
+    double pitch = atan2(-acc[0], acc[2]) * RAD_TO_DEG;
 
-    double gyroXrate = gyroX / 131.0;
-    double gyroYrate = gyroY / 131.0;
-    double gyroZrate = gyroZ / 131.0;
+    //rotational acceleration
+    rotationalAcc[0] = gyroX / 131.0; 
+    rotationalAcc[1] = gyroY / 131.0;
+    rotationalAcc[2] = gyroZ / 131.0;
 
     // This fixes the transition problem when the accelerometer angle jumps between -180 and 180 degrees
     if ((pitch < -90 && kalAngleY > 90) || (pitch > 90 && kalAngleY < -90)) {
@@ -105,20 +106,20 @@ void imu::poll() {
         kalAngleY = pitch;
         gyroYangle = pitch;
     } else
-        kalAngleY = kalmanY.getAngle(pitch, gyroYrate, dt); // Calculate the angle using a Kalman filter
+        kalAngleY = kalmanY.getAngle(pitch, rotationalAcc[1], dt); // Calculate the angle using a Kalman filter
 
     if (abs(kalAngleY) > 90)
-        gyroXrate = -gyroXrate; // Invert rate, so it fits the restriced accelerometer reading
+        rotationalAcc[0] = -rotationalAcc[0]; // Invert rate, so it fits the restriced accelerometer reading
 
-    kalAngleX = kalmanX.getAngle(roll, gyroXrate, dt); // Calculate the angle using a Kalman filter
+    kalAngleX = kalmanX.getAngle(roll, rotationalAcc[0], dt); // Calculate the angle using a Kalman filter
 
-    gyroXangle += gyroXrate * dt; // Calculate gyro angle without any filter
-    gyroYangle += gyroYrate * dt;
-    gyroZangle += gyroZrate * dt - yawOffset * dt;
+    gyroXangle += rotationalAcc[0] * dt; // Calculate gyro angle without any filter
+    gyroYangle += rotationalAcc[1] * dt;
+    gyroZangle += rotationalAcc[2] * dt - yawOffset * dt;
 
-    speed[1] += accX * dt;
-    speed[2] += accY * dt;
-    speed[3] += (accZ - 9.81) * dt;
+    speed[0] += acc[0] * dt;
+    speed[1] += acc[1] * dt;
+    speed[2] += (acc[2] - 9.81) * dt;
 
     // Determine yaw offset
     if (!calibrated && millis() - start_t >= 1000) {
@@ -127,8 +128,8 @@ void imu::poll() {
         gyroZangle = 0;
     }
 
-    compAngleX = 0.93 * (compAngleX + gyroXrate * dt) + 0.07 * roll; // Calculate the angle using a Complimentary filter
-    compAngleY = 0.93 * (compAngleY + gyroYrate * dt) + 0.07 * pitch;
+    compAngleX = 0.93 * (compAngleX + rotationalAcc[0] * dt) + 0.07 * roll; // Calculate the angle using a Complimentary filter
+    compAngleY = 0.93 * (compAngleY + rotationalAcc[1] * dt) + 0.07 * pitch;
 
     if (gyroXangle < -180 || gyroXangle > 180)
         gyroXangle = kalAngleX;
@@ -141,11 +142,15 @@ Eigen::Vector3f imu::get_angles() const {
 }
 
 Eigen::Vector3f imu::get_acceleration() const {
-    return Eigen::Vector3f(accX, accY, accZ);
+    return acc;
 }
 
 Eigen::Vector3f imu::get_speed() const {
     return speed;
+}
+
+Eigen::Vector3f imu::get_rotational_acceleration() const {
+    return Eigen::Vector3f(rotationalAcc[0], rotationalAcc[1], rotationalAcc[2]);
 }
 float imu::get_temperature() const {
     return (float) tempRaw / 340.0f + 36.53f;
