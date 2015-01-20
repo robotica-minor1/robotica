@@ -24,8 +24,8 @@
 #include "Kalman.h"
 
 // Configuration
-const int PIN_ESC1 = 2;
-const int PIN_ESC2 = 3;
+const int PIN_ESC1 = 3;
+const int PIN_ESC2 = 2;
 const int PIN_ESC3 = 4;
 const int PIN_ESC4 = 5;
 
@@ -41,7 +41,8 @@ const int PIN_RETRACTS = 48;
 
 const int SONAR_MAX_DIST = 200;
 
-const long MILLIS_PER_PROP_STEP = 750; // ms per PWM step of 50 (or less)
+const long MILLIS_PER_PROP_STEP = 100; // ms per PWM step of variable below (or less)
+const long PWM_PER_PROP_STEP = 20; // PWM per step (or less)
 
 // Globals
 NewPing sonar(PIN_US_TRIGGER, PIN_US_TRIGGER, SONAR_MAX_DIST);
@@ -262,7 +263,7 @@ void parseCommand(const char* buf) {
 
 void adjustProps() {
     if (prop1_target_pwm != prop1_pwm) {
-        prop1_pwm += constrain(prop1_target_pwm - prop1_pwm, -50, 50);
+        prop1_pwm += constrain(prop1_target_pwm - prop1_pwm, -PWM_PER_PROP_STEP, PWM_PER_PROP_STEP);
         esc1.writeMicroseconds(prop1_pwm);
     } else if (shutdown && !prop1_detached) {
         esc1.detach();
@@ -270,7 +271,7 @@ void adjustProps() {
     }
 
     if (prop2_target_pwm != prop2_pwm) {
-        prop2_pwm += constrain(prop2_target_pwm - prop2_pwm, -50, 50);
+        prop2_pwm += constrain(prop2_target_pwm - prop2_pwm, -PWM_PER_PROP_STEP, PWM_PER_PROP_STEP);
         esc2.writeMicroseconds(prop2_pwm);
     } else if (shutdown && !prop2_detached) {
         esc2.detach();
@@ -278,7 +279,7 @@ void adjustProps() {
     }
 
     if (prop3_target_pwm != prop3_pwm) {
-        prop3_pwm += constrain(prop3_target_pwm - prop3_pwm, -50, 50);
+        prop3_pwm += constrain(prop3_target_pwm - prop3_pwm, -PWM_PER_PROP_STEP, PWM_PER_PROP_STEP);
         esc3.writeMicroseconds(prop3_pwm);
     } else if (shutdown && !prop3_detached) {
         esc3.detach();
@@ -286,7 +287,7 @@ void adjustProps() {
     }
 
     if (prop4_target_pwm != prop4_pwm) {
-        prop4_pwm += constrain(prop4_target_pwm - prop4_pwm, -50, 50);
+        prop4_pwm += constrain(prop4_target_pwm - prop4_pwm, -PWM_PER_PROP_STEP, PWM_PER_PROP_STEP);
         esc4.writeMicroseconds(prop4_pwm);
     } else if (shutdown && !prop4_detached) {
         esc4.detach();
