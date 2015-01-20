@@ -5,16 +5,16 @@
 //
 // >> servos <ang1> <ang2> <ang3> <ang4> <speed1> <speed2> <speed3> <speed4> (degrees, +/- 40)
 // >> props <prop1> <prop2> <prop3> <prop4> (thrust in micronewton tussen 0 en 11,000)
+// >> propsraw <prop1> <prop2> <prop3> <prop4> (raw PWM between 800 and 1700)
 // >> retracts <0/1> (1 = up)
-// >> pollimu
 // >> pollsonar
+// >> shutdown (shuts down props, servos and retracts)
 //
-// << imu <pitch> <yaw> <roll> <accX> <accY> <accZ> (degrees * 1000, m/s^2 * 1000)
 // << sonar <dist> (cm)
-// << ack (sent if setter command successful, pollimu+pollsonar will respond with data instead)
+// << ack (sent if setter command successful, pollsonar will respond with data instead)
 // << error (sent if command is wrong, other errors cause undefined behaviour)
 //
-// TODO: Prop signalen opbouwen en afbouwen en directe prop input accepteren (propsraw)
+// TODO: Uitzoeken waarom geen commando sturen gelijk is aan vorige commando
 
 #include <VarSpeedServo.h>
 #include <NewPing.h>
@@ -41,6 +41,8 @@ const int PIN_RETRACTS = 48;
 
 const int SONAR_MAX_DIST = 200;
 
+const long MILLIS_PER_PROP_STEP = 750; // ms per PWM step of 50 (or less)
+
 // Globals
 NewPing sonar(PIN_US_TRIGGER, PIN_US_TRIGGER, SONAR_MAX_DIST);
 
@@ -65,6 +67,24 @@ int beta = 70;
 
 int offset2 = 5;
 int offset4 = -4;
+
+int prop1_pwm = 0;
+int prop1_target_pwm = 0;
+int prop2_pwm = 0;
+int prop2_target_pwm = 0;
+int prop3_pwm = 0;
+int prop3_target_pwm = 0;
+int prop4_pwm = 0;
+int prop4_target_pwm = 0;
+
+long last_prop_step = 0;
+
+bool shutdown = false;
+
+bool prop1_detached = false;
+bool prop2_detached = false;
+bool prop3_detached = false;
+bool prop4_detached = false;
 
 // Motoren: 900 = 2000 RPM = -0.7 N, 1700 = 10600 RPM = 9.95 N
 //
@@ -97,6 +117,13 @@ void setup() {
     esc3.writeMicroseconds(800);
     esc4.writeMicroseconds(800);
 
+    prop1_target_pwm = prop1_pwm = 800;
+    prop2_target_pwm = prop2_pwm = 800;
+    prop3_target_pwm = prop3_pwm = 800;
+    prop4_target_pwm = prop4_pwm = 800;
+
+    last_prop_step = millis();
+
     // Init servos
     servo1.write(minPulse+((minPulse/(maxAngle))*beta), startSpeed);
     servo2.write(minPulse+((minPulse/(maxAngle))*alpha), startSpeed);
@@ -119,6 +146,12 @@ void loop() {
         } else {
             buf_idx++;
         }
+    }
+
+    // Gradually change prop speed
+    if (millis() - last_prop_step > MILLIS_PER_PROP_STEP) {
+        adjustProps();
+        last_prop_step = millis();
     }
 }
 
@@ -161,37 +194,38 @@ void parseCommand(const char* buf) {
         sscanf(buf, "props %d %d %d %d", &args[0], &args[1], &args[2], &args[3]);
 
         if (args[0] == 0) {
-            Serial.println("nil");
-            esc1.writeMicroseconds(877);
+            prop1_target_pwm = 800;
         } else {
-            esc1.writeMicroseconds(constrain(thrust2microseconds(args[0] / 1000.0f - 1.0f), 700, 1700));
-            Serial.println(constrain(thrust2microseconds(args[1] / 1000.0f - 1.0f), 700, 1700));
+            prop1_target_pwm = constrain(thrust2microseconds(args[0] / 1000.0f - 1.0f), 800, 1700);
         }
 
         if (args[1] == 0) {
-            esc2.writeMicroseconds(877);
-            Serial.println("nil");
+            prop2_target_pwm = 800;
         } else {
-            esc2.writeMicroseconds(constrain(thrust2microseconds(args[1] / 1000.0f - 1.0f), 700, 1700));
-            Serial.println(constrain(thrust2microseconds(args[1] / 1000.0f - 1.0f), 700, 1700));
+            prop2_target_pwm = constrain(thrust2microseconds(args[1] / 1000.0f - 1.0f), 800, 1700);
         }
 
         if (args[2] == 0) {
-            esc3.writeMicroseconds(877);
-            Serial.println("nil");
+            prop3_target_pwm = 800;
         } else {
-            esc3.writeMicroseconds(constrain(thrust2microseconds(args[2] / 1000.0f - 1.0f), 700, 1700));
-            Serial.println(constrain(thrust2microseconds(args[2] / 1000.0f - 1.0f), 700, 1700));
+            prop3_target_pwm = constrain(thrust2microseconds(args[2] / 1000.0f - 1.0f), 800, 1700);
         }
 
         if (args[3] == 0) {
-            esc4.writeMicroseconds(877);
-            Serial.println("nil");
+            prop4_target_pwm = 800;
         } else {
-            esc4.writeMicroseconds(constrain(thrust2microseconds(args[3] / 1000.0f - 1.0f), 700, 1700));
-            Serial.println(constrain(thrust2microseconds(args[3] / 1000.0f - 1.0f), 700, 1700));
+            prop4_target_pwm = constrain(thrust2microseconds(args[3] / 1000.0f - 1.0f), 800, 1700);
         }
         
+        Serial.println("ack");
+    } else if (strcmp(command, "propsraw") == 0) {
+        sscanf(buf, "propsraw %d %d %d %d", &args[0], &args[1], &args[2], &args[3]);
+
+        prop1_target_pwm = constrain(args[0], 800, 1700);
+        prop2_target_pwm = constrain(args[1], 800, 1700);
+        prop3_target_pwm = constrain(args[2], 800, 1700);
+        prop4_target_pwm = constrain(args[3], 800, 1700);
+
         Serial.println("ack");
     } else if (strcmp(command, "retracts") == 0) {
         sscanf(buf, "retracts %d", &args[0]);
@@ -205,9 +239,57 @@ void parseCommand(const char* buf) {
 
         sprintf(response, "sonar %d", cm);
         Serial.println(response);
+    } else if (strcmp(command, "shutdown") == 0) {
+        prop1_target_pwm = 800;
+        prop2_target_pwm = 800;
+        prop3_target_pwm = 800;
+        prop4_target_pwm = 800;
+
+        retracts.detach();
+
+        servo1.detach();
+        servo2.detach();
+        servo3.detach();
+        servo4.detach();
+
+        shutdown = true;
+
+        Serial.println("ack");
     } else {
         Serial.println("error");
     }
+}
 
-    delay(2);
+void adjustProps() {
+    if (prop1_target_pwm != prop1_pwm) {
+        prop1_pwm += constrain(prop1_target_pwm - prop1_pwm, -50, 50);
+        esc1.writeMicroseconds(prop1_pwm);
+    } else if (shutdown && !prop1_detached) {
+        esc1.detach();
+        prop1_detached = true;
+    }
+
+    if (prop2_target_pwm != prop2_pwm) {
+        prop2_pwm += constrain(prop2_target_pwm - prop2_pwm, -50, 50);
+        esc2.writeMicroseconds(prop2_pwm);
+    } else if (shutdown && !prop2_detached) {
+        esc2.detach();
+        prop2_detached = true;
+    }
+
+    if (prop3_target_pwm != prop3_pwm) {
+        prop3_pwm += constrain(prop3_target_pwm - prop3_pwm, -50, 50);
+        esc3.writeMicroseconds(prop3_pwm);
+    } else if (shutdown && !prop3_detached) {
+        esc3.detach();
+        prop3_detached = true;
+    }
+
+    if (prop4_target_pwm != prop4_pwm) {
+        prop4_pwm += constrain(prop4_target_pwm - prop4_pwm, -50, 50);
+        esc4.writeMicroseconds(prop4_pwm);
+    } else if (shutdown && !prop4_detached) {
+        esc4.detach();
+        prop4_detached = true;
+    }
 }

@@ -24,8 +24,8 @@ public:
     void poll();
 
     angles get_angles() const;
-    vec3 get_acceleration() const;
-    vec3 get_speed() const;
+    vec3 get_acceleration() const; // TODO: Omzetten naar m/s^2 (op dit moment g verhouding)
+    vec3 get_speed() const; // TODO: Omzetten naar m/s
 
     float get_temperature() const;
 
