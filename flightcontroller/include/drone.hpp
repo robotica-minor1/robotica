@@ -19,10 +19,9 @@ public:
 	float distanceToLandingSpot;
 	Eigen::Vector3f holdPosition;
 	int motorRotationSigns[4] = {-1, 1, -1, 1};
-	Eigen::Vector3f velocity;
-	Eigen::Vector3f acceleration;
 	Eigen::Vector3f referenceAttitude;	
 	Eigen::Vector3f referenceRotationalVel;	
+	Eigen::Vector3f referenceVelocity;	
 
 
 };
