@@ -22,7 +22,12 @@ public:
     float get_temperature() const;
 
 private:
-    Eigen::Vector3f acc, speed, ang, rotationalAcc, rotationalVel;
+    Eigen::Vector3f acc = Eigen::Vector3f::Zero(3);
+    Eigen::Vector3f speed = Eigen::Vector3f::Zero(3);
+    Eigen::Vector3f ang = Eigen::Vector3f::Zero(3);
+    Eigen::Vector3f rotationalAcc = Eigen::Vector3f::Zero(3);
+    Eigen::Vector3f rotationalVel = Eigen::Vector3f::Zero(3);
+    Eigen::Vector3f gyro = Eigen::Vector3f::Zero(3);
 
     Kalman kalmanX, kalmanY;
 
