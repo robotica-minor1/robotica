@@ -99,6 +99,10 @@ void imu::poll() {
     rotationalAcc[1] = gyroY / 131.0;
     rotationalAcc[2] = gyroZ / 131.0;
 
+    rotationalVel[0] += rotationalAcc[0] * dt;
+    rotationalVel[1] += rotationalAcc[1] * dt;
+    rotationalVel[2] += rotationalAcc[2] * dt;
+
     // This fixes the transition problem when the accelerometer angle jumps between -180 and 180 degrees
     if ((pitch < -90 && kalAngleY > 90) || (pitch > 90 && kalAngleY < -90)) {
         kalmanY.setAngle(pitch);
@@ -150,8 +154,13 @@ Eigen::Vector3f imu::get_speed() const {
 }
 
 Eigen::Vector3f imu::get_rotational_acceleration() const {
-    return Eigen::Vector3f(rotationalAcc[0], rotationalAcc[1], rotationalAcc[2]);
+    return rotationalAcc;
 }
+
+Eigen::Vector3f imu::get_rotational_velocity() const {
+    return rotationalVel;
+}
+
 float imu::get_temperature() const {
     return (float) tempRaw / 340.0f + 36.53f;
 }
