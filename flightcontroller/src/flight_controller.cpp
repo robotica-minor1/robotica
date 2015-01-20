@@ -23,6 +23,14 @@ void FlightController::setReferenceAttitude(Eigen::Vector3f newRefAtt) {
 	drone.referenceAttitude = newRefAtt;
 }
 
+Eigen::Vector3f FlightController::getDifferenceRotationalVel() {
+	return drone.referenceRotationalVel - imu::get().get_rotational_velocity();
+}
+
+void FlightController::setReferenceRotationalVel(Eigen::Vector3f newRefRotVel) {
+	drone.referenceRotationalVel = newRefRotVel;
+}
+
 
 FlightController::FlightController() {
 	pidGains["Roll"] = 0.0;

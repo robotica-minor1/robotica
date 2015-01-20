@@ -22,6 +22,7 @@ public:
 	Eigen::Vector3f velocity;
 	Eigen::Vector3f acceleration;
 	Eigen::Vector3f referenceAttitude;	
+	Eigen::Vector3f referenceRotationalVel;	
 
 
 };
