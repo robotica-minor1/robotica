@@ -1,6 +1,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <unistd.h>
+#include <Eigen/Dense>
 
 #include "i2c.hpp"
 #include "imu.hpp"
@@ -115,9 +116,9 @@ void imu::poll() {
     gyroYangle += gyroYrate * dt;
     gyroZangle += gyroZrate * dt - yawOffset * dt;
 
-    speed.x += accX * dt;
-    speed.y += accY * dt;
-    speed.z += (accZ - 9.81) * dt;
+    speed[1] += accX * dt;
+    speed[2] += accY * dt;
+    speed[3] += (accZ - 9.81) * dt;
 
     // Determine yaw offset
     if (!calibrated && millis() - start_t >= 1000) {
@@ -135,15 +136,15 @@ void imu::poll() {
         gyroYangle = kalAngleY;
 }
 
-angles imu::get_angles() const {
-    return angles(kalAngleX, kalAngleY, gyroZangle);
+Eigen::Vector3f imu::get_angles() const {
+    return Eigen::Vector3f(kalAngleX, kalAngleY, gyroZangle);
 }
 
-vec3 imu::get_acceleration() const {
-    return vec3(accX, accY, accZ);
+Eigen::Vector3f imu::get_acceleration() const {
+    return Eigen::Vector3f(accX, accY, accZ);
 }
 
-vec3 imu::get_speed() const {
+Eigen::Vector3f imu::get_speed() const {
     return speed;
 }
 float imu::get_temperature() const {

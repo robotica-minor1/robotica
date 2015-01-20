@@ -3,7 +3,8 @@
 
 #include "kalman.hpp"
 #include <stdint.h>
-
+#include <Eigen/Dense>
+/*
 struct angles {
     float pitch, yaw, roll;
 
@@ -14,7 +15,7 @@ struct vec3 {
     float x, y, z;
 
     vec3(float x = 0, float y = 0, float z = 0) : x(x), y(y), z(z) {}
-};
+};*/
 
 // Yaw is unreliable in the first ~1000 ms
 class imu {
@@ -23,15 +24,14 @@ public:
 
     void poll();
 
-    angles get_angles() const;
-    vec3 get_acceleration() const;
-    vec3 get_speed() const;
+    Eigen::Vector3f get_angles() const;
+    Eigen::Vector3f get_acceleration() const;
+    Eigen::Vector3f get_speed() const;
 
     float get_temperature() const;
 
 private:
-    angles ang;
-    vec3 acc, speed;
+    Eigen::Vector3f acc, speed, ang;
 
     Kalman kalmanX, kalmanY;
 
