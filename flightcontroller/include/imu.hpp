@@ -4,18 +4,7 @@
 #include "kalman.hpp"
 #include <stdint.h>
 #include <Eigen/Dense>
-/*
-struct angles {
-    float pitch, yaw, roll;
 
-    angles(float pitch = 0, float yaw = 0, float roll = 0) : pitch(pitch), yaw(yaw), roll(roll) {};
-};
-
-struct vec3 {
-    float x, y, z;
-
-    vec3(float x = 0, float y = 0, float z = 0) : x(x), y(y), z(z) {}
-};*/
 
 // Yaw is unreliable in the first ~1000 ms
 class imu {
@@ -25,8 +14,8 @@ public:
     void poll();
 
     Eigen::Vector3f get_angles() const;
-    Eigen::Vector3f get_acceleration() const;
-    Eigen::Vector3f get_speed() const;
+    Eigen::Vector3f get_acceleration() const;// TODO: Omzetten naar m/s^2 (op dit moment g verhouding)
+    Eigen::Vector3f get_speed() const;// TODO: Omzetten naar m/s
 
     float get_temperature() const;
 
