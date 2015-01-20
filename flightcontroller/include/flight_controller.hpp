@@ -15,8 +15,6 @@ private:
 	Eigen::Vector3f direction;
 	
 	Eigen::Vector3f landingPosition;
-		
-	
 	/*
 		actuate takes reference thrust axis rotation and attitude, and makes it happen.
 	*/
@@ -28,12 +26,15 @@ private:
 	void heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vector3f differenceVelocity);
 	void setHoldPosition(Eigen::Vector3f newPosition);
 	void navigate();
+	Eigen::Vector3f getDifferenceAttitude();
 public: 
 	/*
 		setDirection Takes a reference direction and converts it to actuate settings. 
 	*/
 	void setDirection(Eigen::Vector3f newDirection);
 	FlightController();
+	void run();
+	void setReferenceAttitude(Eigen::Vector3f newRefAtt);
 	//setHoldPosition(Eigen::Vector3f newPosition);
 };
 

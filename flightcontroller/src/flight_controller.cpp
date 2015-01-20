@@ -9,13 +9,27 @@
 #include "flight_controller.hpp"
 #include "drone.hpp"
 
+void FlightController::run() {
+	while(true) {
+		Eigen::Vector3f diffAtt = getDifferenceAttitude();
+	}
+}
+
+Eigen::Vector3f FlightController::getDifferenceAttitude() {
+	return drone.referenceAttitude - imu::get().get_angles();
+}
+
+void FlightController::setReferenceAttitude(Eigen::Vector3f newRefAtt) {
+	drone.referenceAttitude = newRefAtt;
+}
+
+
 FlightController::FlightController() {
 	pidGains["Roll"] = 0.0;
 	pidGains["Pitch"] = 0.0;
 	pidGains["Heading"] = 0.0;
 	pidGains["Height"] = 0.0;
 	navMode = "Hold";
-	drone = Drone();
 }
 
 void FlightController::setHoldPosition(Eigen::Vector3f newPosition) {
@@ -113,7 +127,7 @@ void FlightController::pitchPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRot
 	
 	//update reference thrust
 	int signs[4] = {-1, -1, 1, 1};
-	if(gain > 0 && diffRotationalVelocity[1] <= fc_config::maxPitchRotationalVel) {
+	if (gain > 0 && diffRotationalVelocity[1] <= fc_config::maxPitchRotationalVel) {
 		log("Forward");
 		updateReferenceThrust(gain, signs);
 	} else if (gain < 0 && diffRotationalVelocity[1] >= -fc_config::maxPitchRotationalVel) {
@@ -163,5 +177,5 @@ void FlightController::heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vecto
 }
 
 void log(std::string message) {
-	std::cout << message << std::endl; 
+	// std::cout << message << std::endl; 
 }
