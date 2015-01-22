@@ -1,2 +1,3 @@
 include_directories(../include ../lib)
-add_executable(flightController.o flight_controller.cpp drone.cpp testprogram.cpp imu.cpp i2c.cpp)
+add_executable(flightController.o testprogram.cpp imu.cpp i2c.cpp)
+target_link_libraries(flightController.o pthread)
