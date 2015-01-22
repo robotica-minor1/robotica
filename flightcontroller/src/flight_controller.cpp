@@ -12,6 +12,16 @@
 void FlightController::run() {
 	while(true) {
 		Eigen::Vector3f diffAtt = getDifferenceAttitude();
+		Eigen::Vector3f diffRotationalVel = getDifferenceRotationalVel();
+		Eigen::Vector3f diffVelocity = getDifferenceVel(); 
+		Eigen::Vector3f absDirection = Eigen::Vector3f::Zero(3);
+
+		headingPID(diffAtt, diffRotationalVel);
+		rollPID(diffAtt, diffRotationalVel);
+		pitchPID(diffAtt, diffRotationalVel);
+		heightPID(absDirection, diffVelocity);
+		
+		Drone::get().setThrust(referenceThrust);
 	}
 }
 
