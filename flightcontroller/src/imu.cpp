@@ -2,6 +2,8 @@
 #include <cmath>
 #include <unistd.h>
 #include <Eigen/Dense>
+#include <iostream>
+#include <chrono>
 
 #include "i2c.hpp"
 #include "imu.hpp"
@@ -36,6 +38,13 @@ long millis() {
 imu& imu::get() {
     static imu instance;
     return instance;
+}
+
+static void poll_thread(imu* sensor) {
+    while (sensor->is_updating()) {
+        sensor->poll();
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
 }
 
 imu::imu() : calibrated(false), start_t(0), yawOffset(0) {
@@ -75,14 +84,21 @@ imu::imu() : calibrated(false), start_t(0), yawOffset(0) {
 
     timer = micros();
     start_t = millis();
+
+    update_thread = std::thread(poll_thread, this);
+}
+
+imu::~imu() {
+    updating = false;
+    update_thread.join();
 }
 
 void imu::poll() {
     // Update values
     while (i2c::read(0x3B, i2cData, 14));
-    acc[0] = ((i2cData[0] << 8) | i2cData[1]);
-    acc[1] = ((i2cData[2] << 8) | i2cData[3]);
-    acc[2] = ((i2cData[4] << 8) | i2cData[5]);
+    acc[0] = (int16_t) ((i2cData[0] << 8) | i2cData[1]);
+    acc[1] = (int16_t) ((i2cData[2] << 8) | i2cData[3]);
+    acc[2] = (int16_t) ((i2cData[4] << 8) | i2cData[5]);
     tempRaw = (i2cData[6] << 8) | i2cData[7];
     gyro[0] = (i2cData[8] << 8) | i2cData[9];
     gyro[1] = (i2cData[10] << 8) | i2cData[11];
@@ -95,6 +111,7 @@ void imu::poll() {
     double pitch = atan2(-acc[0], acc[2]) * RAD_TO_DEG;
 
     //rotational acceleration
+    acc = acc / 16384 * GRAVITY_ACC;
     rotationalAcc = gyro / 131.0;
 
     rotationalVel += rotationalAcc * dt;
@@ -117,13 +134,14 @@ void imu::poll() {
     ang[1] += rotationalAcc[1] * dt;
     ang[2] += rotationalAcc[2] * dt - yawOffset * dt;
 
-    speed[0] += acc[0] * dt;
-    speed[1] += acc[1] * dt;
-    speed[2] += (acc[2] - 9.81) * dt;
-
-    // Determine yaw offset
+    // Determine yaw and accelerometer offset
     if (!calibrated && millis() - start_t >= 1000) {
         yawOffset = ang[2];
+        accOffset = acc;
+
+        speed = Eigen::Vector3f::Zero(3);
+        pos = Eigen::Vector3f::Zero(3);
+
         calibrated = true;
         ang[2] = 0;
     }
@@ -135,6 +153,10 @@ void imu::poll() {
         ang[0] = kalAngleX;
     if (ang[1] < -180 || ang[1] > 180)
         ang[1] = kalAngleY;
+
+    acc -= accOffset;
+    speed += acc * dt;
+    pos += speed * dt;
 }
 
 Eigen::Vector3f imu::get_angles() const {
@@ -149,6 +171,10 @@ Eigen::Vector3f imu::get_speed() const {
     return speed;
 }
 
+Eigen::Vector3f imu::get_pos() const {
+    return pos;
+}
+
 Eigen::Vector3f imu::get_rotational_acceleration() const {
     return rotationalAcc;
 }
@@ -159,4 +185,8 @@ Eigen::Vector3f imu::get_rotational_velocity() const {
 
 float imu::get_temperature() const {
     return (float) tempRaw / 340.0f + 36.53f;
+}
+
+bool imu::is_updating() const {
+    return updating;
 }
