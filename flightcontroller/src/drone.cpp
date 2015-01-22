@@ -6,6 +6,11 @@ Drone::Drone() {
 	
 }
 
+Drone& Drone::get() {
+    static Drone instance;
+    return instance;
+}
+
 void Drone::setAxisRotation(Eigen::Vector4f axisAngles) {
 
 }

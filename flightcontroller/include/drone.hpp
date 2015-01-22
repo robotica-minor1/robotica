@@ -5,8 +5,11 @@
 class Drone {
 private:
 	void updateReferenceThrust(float gain, int signs[4]);
-public: 
 	Drone();
+	Drone(Drone const&) = delete;
+    void operator=(Drone const&) = delete;
+public: 
+	static Drone& get();
 	void setAxisRotation(Eigen::Vector4f axisAngles);
 	void setThrust(Eigen::Vector4f thrust);
 	//drag coefficient(assumed)
