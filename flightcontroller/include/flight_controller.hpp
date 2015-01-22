@@ -11,7 +11,6 @@ private:
 	std::string navMode;
 	Eigen::Vector4f referenceThrust;
 	std::map<std::string, float> pidGains;
-	Drone drone;
 	Eigen::Vector3f direction;
 	
 	Eigen::Vector3f landingPosition;
