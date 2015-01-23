@@ -10,6 +10,10 @@
 #include "drone.hpp"
 #include "imu.hpp"
 void FlightController::run() {
+	referenceThrust = Eigen::Vector4f << Drone::get().defaultThrust
+										<< Drone::get().defaultThrust 
+										<< Drone::get().defaultThrust 
+										<< Drone::get().defaultThrust; 
 	while(true) {
 		Eigen::Vector3f diffAtt = getDifferenceAttitude();
 		Eigen::Vector3f diffRotationalVel = getDifferenceRotationalVel();
