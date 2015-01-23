@@ -45,7 +45,7 @@ const long MILLIS_PER_PROP_STEP = 100; // ms per PWM step of variable below (or 
 const long PWM_PER_PROP_STEP = 20; // PWM per step (or less)
 
 // Globals
-NewPing sonar(PIN_US_TRIGGER, PIN_US_TRIGGER, SONAR_MAX_DIST);
+NewPing sonar(PIN_US_TRIGGER, PIN_US_ECHO, SONAR_MAX_DIST);
 
 // Servo-like vars
 VarSpeedServo retracts;
