@@ -66,8 +66,10 @@ int maxPulse = 2000;
 int alpha = 20;
 int beta = 70;
 
-int offset2 = 5;
-int offset4 = -4;
+int offset1 = -7;
+int offset2 = 11;
+int offset3 = -7;
+int offset4 = -8;
 
 int prop1_pwm = 0;
 int prop1_target_pwm = 0;
@@ -185,10 +187,10 @@ void parseCommand(const char* buf) {
         speeds[2] = constrain(speeds[2], minSpeed, maxSpeed);
         speeds[3] = constrain(speeds[3], minSpeed, maxSpeed);
 
-        servo1.write(((angles[0]*-1+beta)*2), speeds[0]);
-        servo2.write(((angles[1]+alpha+offset2)*2), speeds[1]);
-        servo3.write(((angles[2]*-1+beta)*2), speeds[2]);
-        servo4.write(((angles[3]+alpha+offset4)*2), speeds[3]);
+        servo1.write((((angles[0]+offset1)*-1+beta)*2), speeds[0]);
+        servo2.write((((angles[1]+offset2)+alpha)*2), speeds[1]);
+        servo3.write((((angles[2]+offset3)*-1+beta)*2), speeds[2]);
+        servo4.write((((angles[3]+offset4)+alpha)*2), speeds[3]);
         
         Serial.println("ack");
     } else if (strcmp(command, "props") == 0) {
