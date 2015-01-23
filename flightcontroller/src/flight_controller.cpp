@@ -173,9 +173,9 @@ void FlightController::heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vecto
 	float gain = absoluteDirection[2] * KP + differenceVelocity[2] * KD;
 
 	//check whether or not we're above the safety height
-	if (Drone::get().position[2] < fc_config::safetyHeight && Drone::get().distanceToLandingSpot > fc_config::landingPrecision) {
+	if (Drone::get().getHeight() < fc_config::safetyHeight && Drone::get().distanceToLandingSpot > fc_config::landingPrecision) {
 		log("Below safety height!");
-		gain = KP * (fc_config::safetyHeight - Drone::get().position[2]);
+		gain = KP * (fc_config::safetyHeight - Drone::get().getHeight());
 	}
 
 	gain *= fc_config::masterGain;
