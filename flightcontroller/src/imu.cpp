@@ -8,9 +8,8 @@
 #include "i2c.hpp"
 #include "imu.hpp"
 #include "kalman.hpp"
+#include "fc_constants.hpp"
 
-const double PI = 3.1415926535897;
-const double RAD_TO_DEG = 180.0 / PI;
 
 void delay(long msecs) {
     usleep(msecs * 1000);

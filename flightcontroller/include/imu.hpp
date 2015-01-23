@@ -5,8 +5,7 @@
 #include <stdint.h>
 #include <thread>
 #include <Eigen/Dense>
-
-const double GRAVITY_ACC = 9.80665;
+#include "fc_constants.hpp"
 
 // Yaw and accelerometer are unreliable in the first ~1000 ms
 class imu {
