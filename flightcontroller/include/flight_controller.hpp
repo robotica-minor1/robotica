@@ -6,12 +6,12 @@
 
 #include "drone.hpp"
 
-
 class FlightController {
 private:
 	std::string navMode;
 	float referenceThrust[4];
 	std::map<std::string, float> pidGains;
+	Drone drone;
 	Eigen::Vector3f direction;
 	
 	Eigen::Vector3f landingPosition;
@@ -28,9 +28,6 @@ private:
 	void navigate();
 	Eigen::Vector3f getDifferenceAttitude();
 	Eigen::Vector3f getDifferenceRotationalVel();
-	Eigen::Vector3f getDifferenceVel();	
-	void setReferenceVel(Eigen::Vector3f newRefSpeed);
-
 public: 
 	/*
 		setDirection Takes a reference direction and converts it to actuate settings. 
