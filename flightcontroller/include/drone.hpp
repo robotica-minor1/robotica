@@ -5,6 +5,9 @@
 class Drone {
 private:
 	void updateReferenceThrust(float gain, int signs[4]);
+	Drone();
+	Drone(Drone const&) = delete;
+    void operator=(Drone const&) = delete;
 public: 
 	Drone();
 	~Drone();
@@ -17,7 +20,7 @@ public:
 
 	//drag coefficient(assumed)
 	float dragCoefficient = 0.5;
-
+	float defaultThrust = 9500;
 	//body surface area(assumed)
 	float surfaceArea = 0.06;
 	Eigen::Vector3f position;
