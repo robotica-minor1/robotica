@@ -28,7 +28,7 @@ namespace fc_config {
 
 	//while landing, drone is allowed to land this far from ideal landing spot, 
 	//it will still attempt to get as close as possible. [m]
-	// float landingPrecision;
+	float landingPrecision = 1;
 
 	//Only look north. debug purposes
 	// bool fixHeading;

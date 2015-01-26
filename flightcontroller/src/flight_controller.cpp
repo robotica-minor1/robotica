@@ -10,11 +10,12 @@
 #include "drone.hpp"
 #include "imu.hpp"
 void FlightController::run() {
-	referenceThrust = Eigen::Vector4f << Drone::get().defaultThrust
-										<< Drone::get().defaultThrust 
-										<< Drone::get().defaultThrust 
-										<< Drone::get().defaultThrust; 
+	referenceThrust[0] = Drone::get().defaultThrust;
+	referenceThrust[1] = Drone::get().defaultThrust; 
+	referenceThrust[2] = Drone::get().defaultThrust; 
+	referenceThrust[3] = Drone::get().defaultThrust; 
 	while(true) {
+		sleep(1);
 		Eigen::Vector3f diffAtt = getDifferenceAttitude();
 		Eigen::Vector3f diffRotationalVel = getDifferenceRotationalVel();
 		Eigen::Vector3f diffVelocity = getDifferenceVel(); 
@@ -187,18 +188,18 @@ void FlightController::heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vecto
 
 	//update reference thrust
 	int signs[4] = {1, 1, 1, 1};
-	if (drone.velocity[2] <= -fc_config::maxDownSpeed || 
-		drone.acceleration[2] <= -fc_config::maxDownAcceleration && 
-		drone.velocity[2] < 0) {
+	if (imu::get().get_speed()[2] <= -fc_config::maxDownSpeed || 
+		imu::get().get_acceleration()[2] <= -fc_config::maxDownAcceleration && 
+		imu::get().get_speed()[2] < 0) {
 		log("Moving down too fast");
 
 		gain = fabs(gain);
 		updateReferenceThrust(gain, signs);
-	} else if (drone.velocity[2] <= fc_config::maxUpSpeed) {
+	} else if (imu::get().get_speed()[2] <= fc_config::maxUpSpeed) {
 		if (gain > 0) {
 			log("Up");
 			updateReferenceThrust(gain, signs);
-		} else if (gain < 0 && drone.velocity[2] >= -fc_config::maxDownSpeed) {
+		} else if (gain < 0 && imu::get().get_speed()[2] >= -fc_config::maxDownSpeed) {
 			log("Down");
 			updateReferenceThrust(gain, signs);
 		}

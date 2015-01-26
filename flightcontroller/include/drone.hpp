@@ -9,13 +9,10 @@ private:
 	Drone(Drone const&) = delete;
     void operator=(Drone const&) = delete;
 public: 
-	Drone();
-	~Drone();
-
 	void setAxisRotation(Eigen::Vector4f axisAngles);
 	void setThrust(Eigen::Vector4f thrust);
 	void setRetracts(bool up);
-
+	static Drone& get();
 	int getHeight();
 
 	//drag coefficient(assumed)
