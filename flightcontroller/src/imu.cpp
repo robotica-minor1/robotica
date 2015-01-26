@@ -167,7 +167,15 @@ void imu::poll() {
 }
 
 Eigen::Vector3f imu::get_angles() const {
-    return angle;
+    return angle / 180.0 * 3.1415926535897;
+}
+
+Eigen::Vector3f imu::get_rotational_acceleration() const {
+    return rotationalAcc / 180.0 * 3.1415926535897;
+}
+
+Eigen::Vector3f imu::get_rotational_velocity() const {
+    return rotationalVel / 180.0 * 3.1415926535897;
 }
 
 Eigen::Vector3f imu::get_acceleration() const {
@@ -180,14 +188,6 @@ Eigen::Vector3f imu::get_speed() const {
 
 Eigen::Vector3f imu::get_pos() const {
     return pos;
-}
-
-Eigen::Vector3f imu::get_rotational_acceleration() const {
-    return rotationalAcc;
-}
-
-Eigen::Vector3f imu::get_rotational_velocity() const {
-    return rotationalVel;
 }
 
 float imu::get_temperature() const {
