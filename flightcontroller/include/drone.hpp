@@ -15,6 +15,11 @@ public:
 	Eigen::Vector3f getPosition(); 
 	static Drone& get();
 	float getHeight();
+	float getZSpeed();
+
+	float speed = 0;
+	float lastHeight = 0;
+	long last_height_sample = 0;
 
 	//drag coefficient(assumed)
 	float dragCoefficient = 0.5;

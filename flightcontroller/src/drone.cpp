@@ -3,6 +3,9 @@
 #include "drone.hpp"
 #include "arduino.hpp"
 
+// Defined in imu.cpp
+extern long micros();
+
 arduino& Arduino = arduino::get();
 
 Drone::Drone() {
@@ -28,7 +31,18 @@ void Drone::setRetracts(bool up) {
 }
 
 float Drone::getHeight() {
-    return Arduino.poll_sonar() / 100.0f;
+    float height = Arduino.poll_sonar() / 100.0f;
+
+    float dt = (micros() - last_height_sample) / 1000000.0f;
+    speed = (height - lastHeight) / dt;
+    lastHeight = height;
+    last_height_sample = micros();
+
+    return height;
+}
+
+float Drone::getZSpeed() {
+    return speed;
 }
 
 Eigen::Vector3f Drone::getPosition() {
