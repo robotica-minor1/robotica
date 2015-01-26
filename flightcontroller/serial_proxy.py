@@ -2,11 +2,23 @@ import serial
 import socket
 import select
 import time
+import pygame
+import thread
+import os.path
+import os
+
+# Connect to controller
+print('connecting to manual override...')
+
+pygame.init()
+
+js = pygame.joystick.Joystick(0)
+js.init()
+
+# Connect to Arduino
+print('connecting to IO controller...')
 
 ser = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
-
-print('connecting...')
-
 time.sleep(1)
 
 print('ready.')
@@ -15,25 +27,59 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(('0.0.0.0', 20000))
 server.listen(1)
 
-while True:
-    (client, address) = server.accept()
-    f = client.makefile()
+def manual_override():
+    import os
+    import os.path
 
-    print('new client')
+    try:
+        while True:
+            events = pygame.event.get()
 
+            for event in events:
+                if event.type == pygame.JOYBUTTONUP and event.button == 12: # Triangle
+                    print('manual override invoked!')
+                    fail()
+
+            if not os.path.exists('/dev/input/js0'):
+                print('lost connection to manual override!')
+                fail()
+
+            time.sleep(0.1)
+    except:
+        print('sending shutdown command...')
+
+        # Sent twice to deal with any previous messages
+        ser.write('shutdown\nshutdown\n')
+
+        os._exit(1)
+
+thread.start_new_thread(manual_override, ())
+
+try:
     while True:
-        (readable, _, __) = select.select([ser, f], [], [])
+        (client, address) = server.accept()
+        f = client.makefile()
 
-        if readable[0] == f:
-            msg = f.readline()
-            if msg == '' or ord(msg[0]) == 0: break
-            ser.write(msg)
-            print('< ' + msg[:-1])
-        else:
-            msg = ser.readline()
-            client.send(msg)
-            print('> ' + msg[:-1])
+        print('new client')
 
-    print('client disconnected')
+        while True:
+            (readable, _, __) = select.select([ser, f], [], [])
 
-    client.close()
+            if readable[0] == f:
+                msg = f.readline()
+                if msg == '' or ord(msg[0]) == 0: break
+                ser.write(msg)
+                print('< ' + msg[:-1])
+            else:
+                msg = ser.readline()
+                client.send(msg)
+                print('> ' + msg[:-1])
+
+        print('client disconnected')
+
+        client.close()
+except KeyboardInterrupt:
+    print('shutting down...')
+
+    js.quit()
+    server.close()
