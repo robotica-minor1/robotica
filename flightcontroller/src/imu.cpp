@@ -191,7 +191,3 @@ float imu::get_temperature() const {
 bool imu::is_updating() const {
     return updating;
 }
-
-bool imu::is_ready() const {
-    return ready;
-}
