@@ -57,6 +57,7 @@ private:
 
     std::thread update_thread;
     bool updating = true;
+    int ready_to_read = 0;
 
     imu();
 

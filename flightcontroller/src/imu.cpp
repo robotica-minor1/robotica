@@ -86,7 +86,7 @@ imu::imu() : calibrated(false), start_t(0), yawOffset(0) {
 
     update_thread = std::thread(poll_thread, this);
 
-    while (!calibrated);
+    while (ready_to_read < 10);
 }
 
 imu::~imu() {
@@ -160,6 +160,10 @@ void imu::poll() {
     angle = Eigen::Vector3f(kalAngleX, kalAngleY, ang[2]);
     rotationalVel = (angle - prevAngle) / dt;
     prevAngle = Eigen::Vector3f(kalAngleX, kalAngleY, ang[2]);
+
+    if (calibrated && ready_to_read < 100) {
+        ready_to_read++;
+    }
 }
 
 Eigen::Vector3f imu::get_angles() const {
