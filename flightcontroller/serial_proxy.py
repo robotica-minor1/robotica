@@ -7,13 +7,18 @@ import thread
 import os.path
 import os
 
+override_active = True
+
 # Connect to controller
 print('connecting to manual override...')
 
 pygame.init()
 
-js = pygame.joystick.Joystick(0)
-js.init()
+try:
+    js = pygame.joystick.Joystick(0)
+    js.init()
+except pygame.error:
+    override_active = False
 
 # Connect to Arduino
 print('connecting to IO controller...')
@@ -53,7 +58,10 @@ def manual_override():
 
         os._exit(1)
 
-thread.start_new_thread(manual_override, ())
+if override_active:
+    thread.start_new_thread(manual_override, ())
+else:
+    print('\033[91m\033[1mWARNING:\033[0m \033[91mNO MANUAL OVERRIDE AVAILABLE\033[0m')
 
 try:
     while True:
