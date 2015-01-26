@@ -24,6 +24,6 @@ void Drone::setRetracts(bool up) {
     arduino::get().set_retracts(up);
 }
 
-int Drone::getHeight() {
-    return arduino::get().poll_sonar();
+float Drone::getHeight() {
+    return arduino::get().poll_sonar() / 100.0f;
 }

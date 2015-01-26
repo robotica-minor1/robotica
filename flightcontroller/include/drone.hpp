@@ -13,7 +13,7 @@ public:
 	void setThrust(Eigen::Vector4f thrust);
 	void setRetracts(bool up);
 	static Drone& get();
-	int getHeight();
+	float getHeight();
 
 	//drag coefficient(assumed)
 	float dragCoefficient = 0.5;
