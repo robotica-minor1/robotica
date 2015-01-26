@@ -49,6 +49,8 @@ private:
     double compAngleX, compAngleY;
     double kalAngleX, kalAngleY;
 
+    Eigen::Vector3f prevAngle = Eigen::Vector3f::Zero();
+
     uint32_t timer;
     uint8_t i2cData[14];
 
