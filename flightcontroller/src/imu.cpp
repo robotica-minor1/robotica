@@ -157,12 +157,13 @@ void imu::poll() {
     speed += acc * dt;
     pos += speed * dt;
 
-    rotationalVel = (Eigen::Vector3f(kalAngleX, kalAngleY, ang[2]) - prevAngle) / dt;
+    angle = Eigen::Vector3f(kalAngleX, kalAngleY, ang[2]);
+    rotationalVel = (angle - prevAngle) / dt;
     prevAngle = Eigen::Vector3f(kalAngleX, kalAngleY, ang[2]);
 }
 
 Eigen::Vector3f imu::get_angles() const {
-    return Eigen::Vector3f(kalAngleX, kalAngleY, ang[2]);
+    return angle;
 }
 
 Eigen::Vector3f imu::get_acceleration() const {

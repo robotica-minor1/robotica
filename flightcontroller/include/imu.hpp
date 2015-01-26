@@ -49,6 +49,7 @@ private:
     double compAngleX, compAngleY;
     double kalAngleX, kalAngleY;
 
+    Eigen::Vector3f angle = Eigen::Vector3f::Zero();
     Eigen::Vector3f prevAngle = Eigen::Vector3f::Zero();
 
     uint32_t timer;
