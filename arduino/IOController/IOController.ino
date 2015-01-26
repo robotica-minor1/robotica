@@ -89,6 +89,8 @@ bool prop2_detached = false;
 bool prop3_detached = false;
 bool prop4_detached = false;
 
+double voltage_correct_factor = 1.0915;
+
 // Motoren: 900 = 2000 RPM = -0.7 N, 1700 = 10600 RPM = 9.95 N
 //
 // Formules:
@@ -241,6 +243,11 @@ void parseCommand(const char* buf) {
         int cm = uS / US_ROUNDTRIP_CM;
 
         sprintf(response, "sonar %d", cm);
+        Serial.println(response);
+    } else if (strcmp(command, "pollbattery") == 0) {
+        int v_measure = analogRead(0) * 16.0 * voltage_correct_factor / 1024.0 * 100.0;
+
+        sprintf(response, "battery %d", v_measure);
         Serial.println(response);
     } else if (strcmp(command, "shutdown") == 0) {
         prop1_target_pwm = 800;
