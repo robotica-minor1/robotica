@@ -40,7 +40,7 @@ private:
 
     int16_t tempRaw;
 
-    bool calibrated;
+    bool calibrated = false;
     int start_t;
     double yawOffset;
 

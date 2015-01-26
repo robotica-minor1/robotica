@@ -85,6 +85,8 @@ imu::imu() : calibrated(false), start_t(0), yawOffset(0) {
     start_t = millis();
 
     update_thread = std::thread(poll_thread, this);
+
+    while (!calibrated);
 }
 
 imu::~imu() {
@@ -188,4 +190,8 @@ float imu::get_temperature() const {
 
 bool imu::is_updating() const {
     return updating;
+}
+
+bool imu::is_ready() const {
+    return ready;
 }
