@@ -9,59 +9,65 @@
 #include "flight_controller.hpp"
 #include "drone.hpp"
 #include "imu.hpp"
+
+#define log(msg) std::cerr << msg << std::endl;
+
+static Drone& drone = Drone::get();
+static imu& IMU = imu::get();
+
 void FlightController::run() {
-	referenceThrust[0] = Drone::get().defaultThrust;
-	referenceThrust[1] = Drone::get().defaultThrust; 
-	referenceThrust[2] = Drone::get().defaultThrust; 
-	referenceThrust[3] = Drone::get().defaultThrust; 
+	referenceThrust[0] = drone.defaultThrust;
+	referenceThrust[1] = drone.defaultThrust; 
+	referenceThrust[2] = drone.defaultThrust; 
+	referenceThrust[3] = drone.defaultThrust; 
 	while(true) {
 		sleep(1);
-		Drone::get().referenceAttitude = Eigen::Vector3f::Zero(3);
-		log("Reference Attitude: " + referenceAttitude);
+		drone.referenceAttitude = Eigen::Vector3f::Zero(3);
+		log("Reference Attitude: " << referenceAttitude);
 		Eigen::Vector3f diffAtt = getDifferenceAttitude();
-		log("Difference Attitude: " + diffAtt);
+		log("Difference Attitude: " << diffAtt);
 		Eigen::Vector3f diffRotationalVel = getDifferenceRotationalVel();
-		log("Difference Rotational Velocity: " + diffRotationalVel);
+		log("Difference Rotational Velocity: " << diffRotationalVel);
 		Eigen::Vector3f diffVelocity = getDifferenceVel(); 
-		log("Difference velocity: " + diffVelocity)
+		log("Difference velocity: " << diffVelocity)
 		Eigen::Vector3f absDirection = Eigen::Vector3f::Zero(3);
-		log("absolute direction: " + absDirection);
+		log("absolute direction: " << absDirection);
 
 		headingPID(diffAtt, diffRotationalVel);
 		rollPID(diffAtt, diffRotationalVel);
 		pitchPID(diffAtt, diffRotationalVel);
 		heightPID(absDirection, diffVelocity);
 		
-		Drone::get().setThrust(referenceThrust);
+		drone.setThrust(referenceThrust);
 	}
 }
 
 Eigen::Vector3f FlightController::getDifferenceAttitude() {
-	return Drone::get().referenceAttitude - imu::get().get_angles();
+	return drone.referenceAttitude - IMU.get_angles();
 }
 
 Eigen::Vector3f FlightController::getDifferenceRotationalVel() {
-	return Drone::get().referenceRotationalVel - imu::get().get_rotational_velocity();
+	return drone.referenceRotationalVel - IMU.get_rotational_velocity();
 }
 
 void FlightController::setReferenceRotationalVel(Eigen::Vector3f newRefRotVel) {
-	Drone::get().referenceRotationalVel = newRefRotVel;
+	drone.referenceRotationalVel = newRefRotVel;
 }
 
 Eigen::Vector3f FlightController::getDifferenceVel() {
-	return Drone::get().referenceVelocity - imu::get().get_speed();
+	return drone.referenceVelocity - IMU.get_speed();
 }
 
 void FlightController::setReferenceVel(Eigen::Vector3f newRefSpeed) {
-	Drone::get().referenceVelocity = newRefSpeed;
+	drone.referenceVelocity = newRefSpeed;
 }
 
 Eigen::Vector3f FlightController::getAbsoluteDirection() {
-	Drone::get().referencePosition - Drone::get().getPosition(); 
+	drone.referencePosition - drone.getPosition(); 
 }
 
 void FlightController::setReferencePosition(Eigen::Vector3f newPos) {
-	Drone::get().referencePosition = newPos; 
+	drone.referencePosition = newPos; 
 }
 
 
@@ -74,9 +80,9 @@ FlightController::FlightController() {
 }
 
 void FlightController::setHoldPosition(Eigen::Vector3f newPosition) {
-	Drone::get().holdPosition = newPosition; 
-	if(Drone::get().holdPosition[2] < fc_config::safetyHeight) {
-		Drone::get().holdPosition[2] = fc_config::safetyHeight; 
+	drone.holdPosition = newPosition; 
+	if(drone.holdPosition[2] < fc_config::safetyHeight) {
+		drone.holdPosition[2] = fc_config::safetyHeight; 
 	}
 }
 
@@ -120,10 +126,10 @@ void FlightController::headingPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffR
 	//update reference thrust
 	if(gain > 0 && diffRotationalVelocity[2] <= fc_config::maxYawRotationalVel) {
 		log("Turn-R");
-		updateReferenceThrust(gain, Drone::get().motorRotationSigns);
+		updateReferenceThrust(gain, drone.motorRotationSigns);
 	} else if (gain < 0 && diffRotationalVelocity[2] >= -fc_config::maxYawRotationalVel) {
 		log("Turn-L");
-		updateReferenceThrust(gain, Drone::get().motorRotationSigns);
+		updateReferenceThrust(gain, drone.motorRotationSigns);
 	} else {
 		log("Heading out of bounds set by maxYawRotationalVel");
 	}
@@ -188,9 +194,9 @@ void FlightController::heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vecto
 	float gain = absoluteDirection[2] * KP + differenceVelocity[2] * KD;
 
 	//check whether or not we're above the safety height
-	if (Drone::get().getHeight() < fc_config::safetyHeight && Drone::get().distanceToLandingSpot > fc_config::landingPrecision) {
+	if (drone.getHeight() < fc_config::safetyHeight && drone.distanceToLandingSpot > fc_config::landingPrecision) {
 		log("Below safety height!");
-		gain = KP * (fc_config::safetyHeight - Drone::get().getHeight());
+		gain = KP * (fc_config::safetyHeight - drone.getHeight());
 	}
 
 	gain *= fc_config::masterGain;
@@ -198,25 +204,21 @@ void FlightController::heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vecto
 
 	//update reference thrust
 	int signs[4] = {1, 1, 1, 1};
-	if (imu::get().get_speed()[2] <= -fc_config::maxDownSpeed || 
-		imu::get().get_acceleration()[2] <= -fc_config::maxDownAcceleration && 
-		imu::get().get_speed()[2] < 0) {
+	if (IMU.get_speed()[2] <= -fc_config::maxDownSpeed || 
+		IMU.get_acceleration()[2] <= -fc_config::maxDownAcceleration && 
+		IMU.get_speed()[2] < 0) {
 		log("Moving down too fast");
 
 		gain = fabs(gain);
 		updateReferenceThrust(gain, signs);
-	} else if (imu::get().get_speed()[2] <= fc_config::maxUpSpeed) {
+	} else if (IMU.get_speed()[2] <= fc_config::maxUpSpeed) {
 		if (gain > 0) {
 			log("Up");
 			updateReferenceThrust(gain, signs);
-		} else if (gain < 0 && imu::get().get_speed()[2] >= -fc_config::maxDownSpeed) {
+		} else if (gain < 0 && IMU.get_speed()[2] >= -fc_config::maxDownSpeed) {
 			log("Down");
 			updateReferenceThrust(gain, signs);
 		}
 	}
 
-}
-
-void log(std::string message) {
-	std::cout << message << std::endl; 
 }
