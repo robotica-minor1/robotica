@@ -44,7 +44,7 @@ namespace fc_config {
 	*/
 
 	//drone will attempt to stay above this height while in flight. [m]
-	float safetyHeight = 3;
+	float safetyHeight = 0.5;
 
 	//maximum allowed descent speed. [m/s]
 	float maxDownSpeed = 1.5;
