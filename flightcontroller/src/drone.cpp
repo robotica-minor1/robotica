@@ -27,3 +27,7 @@ void Drone::setRetracts(bool up) {
 float Drone::getHeight() {
     return arduino::get().poll_sonar() / 100.0f;
 }
+
+Eigen::Vector3f Drone::getPosition() {
+	return Eigen::Vector3f::Zero(3);
+}

@@ -12,6 +12,7 @@ public:
 	void setAxisRotation(Eigen::Vector4f axisAngles);
 	void setThrust(Eigen::Vector4f thrust);
 	void setRetracts(bool up);
+	Eigen::Vector3f getPosition(); 
 	static Drone& get();
 	float getHeight();
 
@@ -28,6 +29,7 @@ public:
 	Eigen::Vector3f referenceAttitude;	
 	Eigen::Vector3f referenceRotationalVel;	
 	Eigen::Vector3f referenceVelocity;	
+	Eigen::Vector3f referencePosition; 
 
 
 };

@@ -29,6 +29,10 @@ private:
 	Eigen::Vector3f getDifferenceRotationalVel();
 	Eigen::Vector3f getDifferenceVel();
 	void setReferenceVel(Eigen::Vector3f newRefSpeed);
+	Eigen::Vector3f getAbsoluteDirection();
+	void setReferencePosition(Eigen::Vector3f newPos);
+
+
 public: 
 	/*
 		setDirection Takes a reference direction and converts it to actuate settings. 
@@ -36,7 +40,6 @@ public:
 	void setDirection(Eigen::Vector3f newDirection);
 	FlightController();
 	void run();
-	void setReferenceAttitude(Eigen::Vector3f newRefAtt);
 	void setReferenceRotationalVel(Eigen::Vector3f newRefAtt);
 	//setHoldPosition(Eigen::Vector3f newPosition);
 };

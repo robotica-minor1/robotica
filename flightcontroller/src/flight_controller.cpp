@@ -16,10 +16,16 @@ void FlightController::run() {
 	referenceThrust[3] = Drone::get().defaultThrust; 
 	while(true) {
 		sleep(1);
+		Drone::get().referenceAttitude = Eigen::Vector3f::Zero(3);
+		log("Reference Attitude: " + referenceAttitude);
 		Eigen::Vector3f diffAtt = getDifferenceAttitude();
+		log("Difference Attitude: " + diffAtt);
 		Eigen::Vector3f diffRotationalVel = getDifferenceRotationalVel();
+		log("Difference Rotational Velocity: " + diffRotationalVel);
 		Eigen::Vector3f diffVelocity = getDifferenceVel(); 
+		log("Difference velocity: " + diffVelocity)
 		Eigen::Vector3f absDirection = Eigen::Vector3f::Zero(3);
+		log("absolute direction: " + absDirection);
 
 		headingPID(diffAtt, diffRotationalVel);
 		rollPID(diffAtt, diffRotationalVel);
@@ -32,10 +38,6 @@ void FlightController::run() {
 
 Eigen::Vector3f FlightController::getDifferenceAttitude() {
 	return Drone::get().referenceAttitude - imu::get().get_angles();
-}
-
-void FlightController::setReferenceAttitude(Eigen::Vector3f newRefAtt) {
-	Drone::get().referenceAttitude = newRefAtt;
 }
 
 Eigen::Vector3f FlightController::getDifferenceRotationalVel() {
@@ -52,6 +54,14 @@ Eigen::Vector3f FlightController::getDifferenceVel() {
 
 void FlightController::setReferenceVel(Eigen::Vector3f newRefSpeed) {
 	Drone::get().referenceVelocity = newRefSpeed;
+}
+
+Eigen::Vector3f FlightController::getAbsoluteDirection() {
+	Drone::get().referencePosition - Drone::get().getPosition(); 
+}
+
+void FlightController::setReferencePosition(Eigen::Vector3f newPos) {
+	Drone::get().referencePosition = newPos; 
 }
 
 
@@ -208,5 +218,5 @@ void FlightController::heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vecto
 }
 
 void log(std::string message) {
-	// std::cout << message << std::endl; 
+	std::cout << message << std::endl; 
 }
