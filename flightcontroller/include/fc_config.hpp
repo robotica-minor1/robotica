@@ -74,6 +74,10 @@ namespace fc_config {
 	const float pidPitch[2] = {0.15, 0.02};
 	const float pidHeight[2] = {0.16, 0.02};
 	const float masterGain = 1;
+
+	const float MAX_THRUST = 10200;
+	const float MIN_THRUST = 700;
+
 }
 
 #endif //FC_CONFIG_HPP
