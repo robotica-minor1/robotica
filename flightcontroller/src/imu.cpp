@@ -100,10 +100,10 @@ void imu::poll() {
     acc[0] = (int16_t) ((i2cData[0] << 8) | i2cData[1]);
     acc[1] = (int16_t) ((i2cData[2] << 8) | i2cData[3]);
     acc[2] = (int16_t) ((i2cData[4] << 8) | i2cData[5]);
-    tempRaw = (i2cData[6] << 8) | i2cData[7];
-    gyro[0] = (i2cData[8] << 8) | i2cData[9];
-    gyro[1] = (i2cData[10] << 8) | i2cData[11];
-    gyro[2] = (i2cData[12] << 8) | i2cData[13];
+    tempRaw = (int16_t) ((i2cData[6] << 8) | i2cData[7]);
+    gyro[0] = (int16_t) ((i2cData[8] << 8) | i2cData[9]);
+    gyro[1] = (int16_t) ((i2cData[10] << 8) | i2cData[11]);
+    gyro[2] = (int16_t) ((i2cData[12] << 8) | i2cData[13]);
 
     double dt = (double)(micros() - timer) / 1000000;
     timer = micros();
