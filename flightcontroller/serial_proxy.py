@@ -6,11 +6,6 @@ import pygame
 import thread
 import os.path
 import os
-import sys
-
-if os.geteuid() != 0:
-    print('You must run this as root.')
-    sys.exit(1)
 
 override_active = True
 
@@ -55,7 +50,7 @@ def manual_override():
                 fail()
 
             time.sleep(0.1)
-    except Exception as e:
+    except:
         print('sending shutdown command...')
 
         # Sent twice to deal with any previous messages
@@ -75,18 +70,21 @@ try:
 
         print('new client')
 
-        while True:
-            (readable, _, __) = select.select([ser, f], [], [])
+        try:
+            while True:
+                (readable, _, __) = select.select([ser, f], [], [])
 
-            if readable[0] == f:
-                msg = f.readline()
-                if msg == '' or ord(msg[0]) == 0: break
-                ser.write(msg)
-                print('< ' + msg[:-1])
-            else:
-                msg = ser.readline()
-                client.send(msg)
-                print('> ' + msg[:-1])
+                if readable[0] == f:
+                    msg = f.readline()
+                    if msg == '' or ord(msg[0]) == 0: break
+                    ser.write(msg)
+                    print('< ' + msg[:-1])
+                else:
+                    msg = ser.readline()
+                    client.send(msg)
+                    print('> ' + msg[:-1])
+        except:
+            pass
 
         print('client disconnected')
 
