@@ -6,6 +6,11 @@ import pygame
 import thread
 import os.path
 import os
+import sys
+
+if os.geteuid() != 0:
+    print('You must run this as root.')
+    sys.exit(1)
 
 override_active = True
 
@@ -50,7 +55,7 @@ def manual_override():
                 fail()
 
             time.sleep(0.1)
-    except:
+    except Exception as e:
         print('sending shutdown command...')
 
         # Sent twice to deal with any previous messages
