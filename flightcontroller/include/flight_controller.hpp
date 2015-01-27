@@ -9,7 +9,7 @@
 class FlightController {
 private:
 	std::string navMode;
-	Eigen::Vector4f referenceThrust;
+	Eigen::Vector4f thrust;
 	std::map<std::string, float> pidGains;
 	Eigen::Vector3f direction;
 	

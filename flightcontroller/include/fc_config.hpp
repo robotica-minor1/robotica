@@ -69,10 +69,10 @@ namespace fc_config {
 	float maxRollRotationalVel = 20 * DEG_TO_RAD;
 	float maxYawRotationalVel = 120 * DEG_TO_RAD;
 	//PID values. P and D only. 
-	float pidHeading[2] = {0.1, 0.1};
-	float pidRoll[2] = {0.15, 0.2};
-	float pidPitch[2] = {0.15, 0.2};
-	float pidHeight[2] = {0.16, 0.2};
+	float pidHeading[2] = {0.1, 0.01};
+	float pidRoll[2] = {0.15, 0.02};
+	float pidPitch[2] = {0.15, 0.02};
+	float pidHeight[2] = {0.16, 0.02};
 	float masterGain = 1;
 }
 
