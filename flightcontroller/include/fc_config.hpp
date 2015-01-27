@@ -7,10 +7,10 @@ namespace fc_config {
 		Control settings
 	*/
 	//maximum speed while on manual control. [m/s]
-	float maxSpeedInput; 
+	// const float maxSpeedInput; 
 	
 	//Maximum rotational velocity on yaw (manual control only) [Degrees/s]
-	float maxYawRotation; 
+	// const float maxYawRotation; 
 
 
 	/*
@@ -21,14 +21,14 @@ namespace fc_config {
 	// bool landAfterFlightpath;
 
 	//When this close to target, target has been 'reached' [m]
-	// float proximityTreshold;
+	// const float proximityTreshold;
 
 	//maximum speed to descend while landing [m/s]
-	// float landDescentSpeed;
+	// const float landDescentSpeed;
 
 	//while landing, drone is allowed to land this far from ideal landing spot, 
 	//it will still attempt to get as close as possible. [m]
-	float landingPrecision = 1;
+	const float landingPrecision = 1;
 
 	//Only look north. debug purposes
 	// bool fixHeading;
@@ -37,43 +37,43 @@ namespace fc_config {
 	// bool forceForwardFlight; 
 
 	//drone may only move when its heading is between the target heading +- this precision. [degrees]
-	// float safeHeadingPrecision;
+	// const float safeHeadingPrecision;
 
 	/*
 		Safety settings
 	*/
 
 	//drone will attempt to stay above this height while in flight. [m]
-	float safetyHeight = 0.5;
+	const float safetyHeight = 0.5;
 
 	//maximum allowed descent speed. [m/s]
-	float maxDownSpeed = 1.5;
+	const float maxDownSpeed = 1.5;
 
 	//maximum allowed ascent speed. [m/s]
-	float maxUpSpeed = 3;
+	const float maxUpSpeed = 3;
 
 	//maximum allowed downward acceleration. [m/s^2]
-	float maxDownAcceleration = 1;
+	const float maxDownAcceleration = 1;
 
 	//maximum allowed speed [m/s]
-	float maxSpeed = 5;
+	const float maxSpeed = 5;
 
 	//Maximum allowable pitch. [radians]
-	// float maxPitch;
+	// const float maxPitch;
 
 	//Maximum allowable yaw. [radians]
-	// float maxYaw;
+	// const float maxYaw;
 
 	//maximum allowable rotational velocity [radians]
-	float maxPitchRotationalVel = 20 * DEG_TO_RAD;
-	float maxRollRotationalVel = 20 * DEG_TO_RAD;
-	float maxYawRotationalVel = 120 * DEG_TO_RAD;
+	const float maxPitchRotationalVel = 20 * DEG_TO_RAD;
+	const float maxRollRotationalVel = 20 * DEG_TO_RAD;
+	const float maxYawRotationalVel = 120 * DEG_TO_RAD;
 	//PID values. P and D only. 
-	float pidHeading[2] = {0.1, 0.01};
-	float pidRoll[2] = {0.15, 0.02};
-	float pidPitch[2] = {0.15, 0.02};
-	float pidHeight[2] = {0.16, 0.02};
-	float masterGain = 1;
+	const float pidHeading[2] = {0.1, 0.01};
+	const float pidRoll[2] = {0.15, 0.02};
+	const float pidPitch[2] = {0.15, 0.02};
+	const float pidHeight[2] = {0.16, 0.02};
+	const float masterGain = 1;
 }
 
 #endif //FC_CONFIG_HPP
