@@ -108,10 +108,10 @@ void FlightController::updateReferenceThrust(float gain, int signs[]) {
 
 	for (int i = 0; i < 4; i++) {
 		thrust[i] *= (1 + gain * signs[i]);
-		if(thrust[i] > 10200) {
-			thrust[i] = 10200;
-		} else if (thrust[i] < 700) {
-			thrust[i] = 700;
+		if(thrust[i] > fc_config::MAX_THRUST) {
+			thrust[i] = fc_config::MAX_THRUST;
+		} else if (thrust[i] < fc_config::MIN_THRUST) {
+			thrust[i] = fc_config::MIN_THRUST;
 		}
 	}
 }
