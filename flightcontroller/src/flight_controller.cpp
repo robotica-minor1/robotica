@@ -16,13 +16,9 @@ static Drone& drone = Drone::get();
 static imu& IMU = imu::get();
 
 void FlightController::run() {
-	sleep(5);
-	for(int i = 0; i < 10; i++) {}
-	
-		sleep(1);
+	while (true) {
 		thrust = drone.t00 / (cos(IMU.get_angles()[0]) * cos(IMU.get_angles()[1]));
-		log("IMU angles: \n" << IMU.get_angles());
-		log("IMU rotational velocity: \n" << IMU.get_rotational_velocity())
+
 		drone.referenceAttitude = Eigen::Vector3f::Zero(3);
 		// log("Reference Attitude: " << drone.referenceAttitude);
 		Eigen::Vector3f diffAtt = getDifferenceAttitude();
@@ -41,8 +37,6 @@ void FlightController::run() {
 		
 		drone.setThrust(thrust);
 	}
-
-	
 }
 
 Eigen::Vector3f FlightController::getDifferenceAttitude() {
