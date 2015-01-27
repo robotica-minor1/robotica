@@ -1,10 +1,9 @@
-#include <cmath> 
+#include <cmath>
+#include <iostream>
 
+#include "fc_config.hpp"
 #include "drone.hpp"
 #include "arduino.hpp"
-
-// Defined in imu.cpp
-extern long micros();
 
 arduino& Arduino = arduino::get();
 
@@ -29,6 +28,15 @@ void Drone::setThrust(Eigen::Vector4f thrust) {
 	converted[1] = thrust[3];
 	converted[2] = thrust[1];
 	converted[3] = thrust[0];
+
+    for (int i = 0; i < 4; i++) {
+        if(converted[i] > fc_config::MAX_THRUST) {
+            converted[i] = fc_config::MAX_THRUST;
+        } else if (converted[i] < fc_config::MIN_THRUST) {
+            converted[i] = fc_config::MIN_THRUST;
+        }
+    }
+
 	Arduino.set_props(converted);
 }
 
@@ -40,16 +48,31 @@ void Drone::setRetracts(bool up) {
 float Drone::getHeight() {
     float height = Arduino.poll_sonar() / 100.0f;
 
-    float dt = (micros() - last_height_sample) / 1000000.0f;
-    speed = (height - lastHeight) / dt;
-    lastHeight = height;
-    last_height_sample = micros();
+    queue[queueIdx] = HeightSample(height);
+    queueIdx = (queueIdx + 1) % 30;
+    queueCount = std::min(queueCount + 1, 30);
 
     return height;
 }
 
 float Drone::getZSpeed() {
-    return speed;
+    if (queueCount < 30) {
+        return 0;
+    } else {
+        float speedSum = 0;
+
+        for (int i = 0; i < 30 - 1; i++) {
+            // Start of circular buffer (1 after last inserted item)
+            int o = (queueIdx + i) % 10;
+
+            float dt = (queue[o + 1].t - queue[o].t) / 1000000.0f;
+            float dist = queue[o + 1].h - queue[o].h;
+
+            speedSum += dist / dt;
+        }
+
+        return speedSum / 30.0f;
+    }
 }
 
 Eigen::Vector3f Drone::getPosition() {

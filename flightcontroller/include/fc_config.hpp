@@ -1,6 +1,7 @@
 #ifndef FC_CONFIG_HPP
 #define FC_CONFIG_HPP
 #include <cmath> 
+#include "fc_constants.hpp"
 
 namespace fc_config {
 	/*

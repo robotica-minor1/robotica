@@ -2,6 +2,20 @@
 #define DRONE_HPP_
 #include <Eigen/Dense>
 
+// Defined in imu.cpp
+extern long micros();
+
+struct HeightSample {
+	long t;
+	float h;
+
+	HeightSample() : t(0), h(0) {}
+
+	HeightSample(float h) : h(h) {
+		t = micros();
+	}
+};
+
 class Drone {
 private:
 	void updateReferenceThrust(float gain, int signs[4]);
@@ -38,7 +52,10 @@ public:
 	float defaultThrust = 9500;
 	Eigen::Vector4f t00 = Eigen::Vector4f(defaultThrust, defaultThrust, defaultThrust, defaultThrust);
 
-
+	// Circular buffer of height samples
+	HeightSample queue[30];
+	int queueIdx = 0;
+	int queueCount = 0;
 };
 
 #endif //DRONE_HPP_
