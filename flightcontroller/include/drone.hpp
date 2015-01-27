@@ -23,7 +23,6 @@ public:
 
 	//drag coefficient(assumed)
 	float dragCoefficient = 0.5;
-	float defaultThrust = 9500;
 	//body surface area(assumed)
 	float surfaceArea = 0.06;
 	Eigen::Vector3f position;
@@ -35,6 +34,9 @@ public:
 	Eigen::Vector3f referenceRotationalVel;	
 	Eigen::Vector3f referenceVelocity;	
 	Eigen::Vector3f referencePosition; 
+
+	float defaultThrust = 9500;
+	Eigen::Vector4f t00 = Eigen::Vector4f(defaultThrust, defaultThrust, defaultThrust, defaultThrust);
 
 
 };

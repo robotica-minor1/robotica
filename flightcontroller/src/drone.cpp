@@ -22,7 +22,14 @@ void Drone::setAxisRotation(Eigen::Vector4f axisAngles) {
 }
 
 void Drone::setThrust(Eigen::Vector4f thrust) {
-	Arduino.set_props(thrust);
+	//labels on the actual prop engines don't match the conventions 
+	//previously used in the code, so convert it here.
+	Eigen::Vector4f converted;
+	converted[0] = thrust[2];
+	converted[1] = thrust[3];
+	converted[2] = thrust[1];
+	converted[3] = thrust[0];
+	Arduino.set_props(converted);
 }
 
 
