@@ -41,8 +41,11 @@ const int PIN_RETRACTS = 48;
 
 const int SONAR_MAX_DIST = 200;
 
-const long MILLIS_PER_PROP_STEP = 100; // ms per PWM step of variable below (or less)
-const long PWM_PER_PROP_STEP = 20; // PWM per step (or less)
+const long MILLIS_PER_PROP_STEP = 50; // ms per PWM step of variable below (or less)
+const long PWM_PER_PROP_STEP = 50; // PWM per step (or less)
+
+const long PWM_UPPER_BOUND = 12000;
+const long PWM_LOWER_BOUND = 700;
 
 // Globals
 NewPing sonar(PIN_US_TRIGGER, PIN_US_ECHO, SONAR_MAX_DIST);
@@ -199,37 +202,37 @@ void parseCommand(const char* buf) {
         sscanf(buf, "props %d %d %d %d", &args[0], &args[1], &args[2], &args[3]);
 
         if (args[0] == 0) {
-            prop1_target_pwm = 800;
+            prop1_target_pwm = PWM_LOWER_BOUND;
         } else {
-            prop1_target_pwm = constrain(thrust2microseconds(args[0] / 1000.0f - 1.0f), 800, 1700);
+            prop1_target_pwm = constrain(thrust2microseconds(args[0] / 1000.0f - 1.0f), PWM_LOWER_BOUND, PWM_UPPER_BOUND);
         }
 
         if (args[1] == 0) {
-            prop2_target_pwm = 800;
+            prop2_target_pwm = PWM_LOWER_BOUND;
         } else {
-            prop2_target_pwm = constrain(thrust2microseconds(args[1] / 1000.0f - 1.0f), 800, 1700);
+            prop2_target_pwm = constrain(thrust2microseconds(args[1] / 1000.0f - 1.0f), PWM_LOWER_BOUND, PWM_UPPER_BOUND);
         }
 
         if (args[2] == 0) {
-            prop3_target_pwm = 800;
+            prop3_target_pwm = PWM_LOWER_BOUND;
         } else {
-            prop3_target_pwm = constrain(thrust2microseconds(args[2] / 1000.0f - 1.0f), 800, 1700);
+            prop3_target_pwm = constrain(thrust2microseconds(args[2] / 1000.0f - 1.0f), PWM_LOWER_BOUND, PWM_UPPER_BOUND);
         }
 
         if (args[3] == 0) {
-            prop4_target_pwm = 800;
+            prop4_target_pwm = PWM_LOWER_BOUND;
         } else {
-            prop4_target_pwm = constrain(thrust2microseconds(args[3] / 1000.0f - 1.0f), 800, 1700);
+            prop4_target_pwm = constrain(thrust2microseconds(args[3] / 1000.0f - 1.0f), PWM_LOWER_BOUND, PWM_UPPER_BOUND);
         }
         
         Serial.println("ack");
     } else if (strcmp(command, "propsraw") == 0) {
         sscanf(buf, "propsraw %d %d %d %d", &args[0], &args[1], &args[2], &args[3]);
 
-        prop1_target_pwm = constrain(args[0], 800, 1700);
-        prop2_target_pwm = constrain(args[1], 800, 1700);
-        prop3_target_pwm = constrain(args[2], 800, 1700);
-        prop4_target_pwm = constrain(args[3], 800, 1700);
+        prop1_target_pwm = constrain(args[0], PWM_LOWER_BOUND, PWM_UPPER_BOUND);
+        prop2_target_pwm = constrain(args[1], PWM_LOWER_BOUND, PWM_UPPER_BOUND);
+        prop3_target_pwm = constrain(args[2], PWM_LOWER_BOUND, PWM_UPPER_BOUND);
+        prop4_target_pwm = constrain(args[3], PWM_LOWER_BOUND, PWM_UPPER_BOUND);
 
         Serial.println("ack");
     } else if (strcmp(command, "retracts") == 0) {
