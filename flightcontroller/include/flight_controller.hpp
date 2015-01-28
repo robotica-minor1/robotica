@@ -24,14 +24,15 @@ private:
 	void pitchPID(Eigen::Vector3f diffAtt, Eigen::Vector3f diffRotationalVelocity);
 	void heightPID(Eigen::Vector3f absoluteDirection, Eigen::Vector3f differenceVelocity);
 	void setHoldPosition(Eigen::Vector3f newPosition);
-	void navigate();
+	void actuate();
 	Eigen::Vector3f getDifferenceAttitude();
 	Eigen::Vector3f getDifferenceRotationalVel();
 	Eigen::Vector3f getDifferenceVel();
 	void setReferenceVel(Eigen::Vector3f newRefSpeed);
 	Eigen::Vector3f getAbsoluteDirection();
 	void setReferencePosition(Eigen::Vector3f newPos);
-
+	void hold();
+	void land();
 
 public: 
 	/*

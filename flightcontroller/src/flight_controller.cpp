@@ -17,23 +17,8 @@ static imu& IMU = imu::get();
 
 void FlightController::run() {
 	while (true) {
-		thrust = drone.t00 / (cos(IMU.get_angles()[0]) * cos(IMU.get_angles()[1]));
-
-		drone.referenceAttitude = Eigen::Vector3f::Zero(3);
-		// log("Reference Attitude: " << drone.referenceAttitude);
-		Eigen::Vector3f diffAtt = getDifferenceAttitude();
-		// log("Difference Attitude: " << diffAtt);
-		Eigen::Vector3f diffRotationalVel = getDifferenceRotationalVel();
-		// log("Difference Rotational Velocity: " << diffRotationalVel);
-		Eigen::Vector3f diffVelocity = getDifferenceVel(); 
-		// log("Difference velocity: " << diffVelocity)
-		Eigen::Vector3f absDirection = Eigen::Vector3f::Zero(3);
-		// log("absolute direction: " << absDirection);
-
-		// headingPID(diffAtt, diffRotationalVel);
-		rollPID(diffAtt, diffRotationalVel);
-		pitchPID(diffAtt, diffRotationalVel);
-		heightPID(absDirection, diffVelocity);
+		
+		actuate();
 
 		//raise or lower the landing gear if needed. 
 		if(drone.getHeight() > drone.gearRaiseHeight && !drone.gearUp) {
@@ -94,18 +79,42 @@ void FlightController::setHoldPosition(Eigen::Vector3f newPosition) {
 	}
 }
 
-void FlightController::navigate() {
-/*	if (navMode == "Waypoint") {
+void FlightController::actuate() {
+	/*if (navMode == "Waypoint") {
 		wayPointNavigation(); 
 	} else if (navMode == "Direct") {
 		directControl();
 	} else if (navMode == "Follow" && target) {
 		directControl();
-	} else if (navMode == "Hold") {
-		directControl();
+	} else */if (navMode == "Hold") {
+		hold();
 	} else if (navMode == "Land") {
-		directControl();
-	} */
+		land();
+	} 
+}
+
+void FlightController::hold() {
+	thrust = drone.t00 / (cos(IMU.get_angles()[0]) * cos(IMU.get_angles()[1]));
+
+	drone.referenceAttitude = Eigen::Vector3f::Zero(3);
+	// log("Reference Attitude: " << drone.referenceAttitude);
+	Eigen::Vector3f diffAtt = getDifferenceAttitude();
+	// log("Difference Attitude: " << diffAtt);
+	Eigen::Vector3f diffRotationalVel = getDifferenceRotationalVel();
+	// log("Difference Rotational Velocity: " << diffRotationalVel);
+	Eigen::Vector3f diffVelocity = getDifferenceVel(); 
+	// log("Difference velocity: " << diffVelocity)
+	Eigen::Vector3f absDirection = Eigen::Vector3f::Zero(3);
+	// log("absolute direction: " << absDirection);
+
+	// headingPID(diffAtt, diffRotationalVel);
+	rollPID(diffAtt, diffRotationalVel);
+	pitchPID(diffAtt, diffRotationalVel);
+	heightPID(absDirection, diffVelocity);
+}
+
+void FlightController::land() {
+
 }
 
 void FlightController::updateReferenceThrust(float gain, int signs[]) {
