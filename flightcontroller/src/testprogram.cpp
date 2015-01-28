@@ -10,6 +10,8 @@ int main(int argc, char* argv[]) {
     Eigen::Vector4f angles(0,0,0,0);
     Drone::get().setAxisRotation(angles);
     sleep(2);
+    Eigen::Vector3f refVel(0, 0, 0); 
+    fc.setReferenceVel(refVel);
     fc.run();
 
     return 0;
