@@ -42,7 +42,10 @@ void Drone::setThrust(Eigen::Vector4f thrust) {
 
 
 void Drone::setRetracts(bool up) {
-    Arduino.set_retracts(up);
+    if(up != gearUp) {
+        Arduino.set_retracts(up);
+        gearUp = up;
+    }
 }
 
 float Drone::getHeight() {

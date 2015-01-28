@@ -34,7 +34,15 @@ void FlightController::run() {
 		rollPID(diffAtt, diffRotationalVel);
 		pitchPID(diffAtt, diffRotationalVel);
 		heightPID(absDirection, diffVelocity);
-		
+
+		//raise or lower the landing gear if needed. 
+		if(drone.getHeight() > drone.gearRaiseHeight && !drone.gearUp) {
+			drone.setRetracts(true); 
+		} else if (drone.getHeight() < drone.gearLowerHeight && drone.gearUp) {
+			drone.setRetracts(false); 
+		}
+
+
 		drone.setThrust(thrust);
 	}
 }
@@ -71,6 +79,7 @@ void FlightController::setReferencePosition(Eigen::Vector3f newPos) {
 
 
 FlightController::FlightController() {
+	drone.setRetracts(false);
 	pidGains["Roll"] = 0.0;
 	pidGains["Pitch"] = 0.0;
 	pidGains["Heading"] = 0.0;

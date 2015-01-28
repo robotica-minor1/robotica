@@ -48,6 +48,9 @@ public:
 	Eigen::Vector3f referenceRotationalVel;	
 	Eigen::Vector3f referenceVelocity;	
 	Eigen::Vector3f referencePosition; 
+	bool gearUp; 
+	float gearRaiseHeight = 0.7;
+	float gearLowerHeight = 0.5;
 
 	float defaultThrust = 9500;
 	Eigen::Vector4f t00 = Eigen::Vector4f(defaultThrust, defaultThrust, defaultThrust, defaultThrust);
